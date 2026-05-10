@@ -1,4 +1,4 @@
-<!-- claudebook: generated {{DATE}}, depth={{DEPTH}} -->
+<!-- claudebook: generated {{DATE}}, depth={{DEPTH}}, sha={{COMMIT_SHA_SHORT}} -->
 # Type Map
 
 Shared types and interfaces in `src/types/` (or top-level `*.d.ts`). Before defining a new type, search here.

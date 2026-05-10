@@ -1,4 +1,4 @@
-<!-- claudebook: generated {{DATE}}, depth={{DEPTH}} -->
+<!-- claudebook: generated {{DATE}}, depth={{DEPTH}}, sha={{COMMIT_SHA_SHORT}} -->
 # CLAUDE.md
 
 > Router file. Always loaded into Claude's context. Keep ≤200 lines.
@@ -45,10 +45,34 @@
 ## Before writing ANY code
 
 1. Check the relevant inventory to avoid recreating existing code:
-   - Components → `.claude/docs/inventories/component-map.md`
-   - Utilities → `.claude/docs/inventories/utility-map.md`
-{{ADDITIONAL_INVENTORY_LINKS}}
+{{INVENTORY_LINKS}}
 2. Match the task below and load the matching pattern/topic doc.
+
+<!--
+  {{INVENTORY_LINKS}} renders ONLY the inventories that were actually generated.
+  Do not include rows for skipped inventories. Examples:
+
+    React app with all inventories:
+      - Components → `.claude/docs/inventories/component-map.md`
+      - Utilities  → `.claude/docs/inventories/utility-map.md`
+      - Hooks      → `.claude/docs/inventories/hook-map.md`
+      - Services   → `.claude/docs/inventories/service-map.md`
+      - Routes     → `.claude/docs/inventories/route-map.md`
+      - Types      → `.claude/docs/inventories/type-map.md`
+
+    Python FastAPI backend (no Components, no Hooks):
+      - Utilities → `.claude/docs/inventories/utility-map.md`
+      - Services  → `.claude/docs/inventories/service-map.md`
+      - Routes    → `.claude/docs/inventories/route-map.md`
+      - Types     → `.claude/docs/inventories/type-map.md`
+
+    Tiny project with only utilities:
+      - Utilities → `.claude/docs/inventories/utility-map.md`
+
+  If exactly zero inventories were generated, replace the bullet list with:
+      (no inventories generated for this project — codebase too small)
+-->
+
 
 ## Task → Doc routing
 
@@ -79,3 +103,11 @@ This documentation is generated and maintained by the [`claudebook`](https://git
 - Run `/claudebook:revise` after merging significant changes.
 - Last write: {{DATE}}
 - Last commit covered: {{COMMIT_SHA}}
+
+<!--
+  CLAUDEBOOK.md is the source of truth for `Last commit covered`. This footer mirrors
+  it for human readability. `/claudebook:revise` updates BOTH the meta file and this
+  footer to the new HEAD SHA on every successful run. The top-of-file marker
+  (sha=<short-sha>) is also updated when the router itself is patched.
+-->
+

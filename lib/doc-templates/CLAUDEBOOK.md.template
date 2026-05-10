@@ -1,4 +1,4 @@
-<!-- claudebook: generated {{DATE}}, depth={{DEPTH}} -->
+<!-- claudebook: generated {{DATE}}, depth={{DEPTH}}, sha={{COMMIT_SHA_SHORT}} -->
 # CLAUDEBOOK
 
 Meta file. Tracks state for `/claudebook:revise`. Do not hand-edit unless you know what you're doing.
@@ -38,9 +38,17 @@ Meta file. Tracks state for `/claudebook:revise`. Do not hand-edit unless you kn
 {{SKIPPED_PATTERNS_LIST}}
 
 <!--
-  e.g.:
-  - patterns/forms.md — no forms detected in src/
-  - patterns/tables.md — no table components detected
+  Two valid renderings:
+
+  1. Some patterns skipped — list each with reason:
+       - patterns/forms.md — no forms detected in src/
+       - patterns/tables.md — no table components detected
+
+  2. All patterns applied — render literally:
+       (none — every applicable pattern doc was generated)
+
+  Do not leave this section blank. Future revise runs use this list to know whether to
+  re-check for newly-introduced patterns (e.g. the project later adds its first form).
 -->
 
 ## Notes

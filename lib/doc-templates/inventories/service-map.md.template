@@ -1,4 +1,4 @@
-<!-- claudebook: generated {{DATE}}, depth={{DEPTH}} -->
+<!-- claudebook: generated {{DATE}}, depth={{DEPTH}}, sha={{COMMIT_SHA_SHORT}} -->
 # Service Map
 
 Business-logic modules in `src/services/` (or `src/api/`). These wrap API calls and domain operations — UI components should call services, not `api` directly when the operation is non-trivial.
@@ -24,4 +24,47 @@ Business-logic modules in `src/services/` (or `src/api/`). These wrap API calls 
   - Purpose: Email/password login; sets cookie via backend response.
   - Signature: (email: string, password: string) => Promise<User>
   - Calls: POST /auth/login
+-->
+
+## Service-style functions outside `src/services/`
+
+{{EXTERNAL_SERVICE_FUNCTIONS}}
+
+<!--
+  Some projects don't have a `src/services/` folder yet — service-style functions (calls
+  that wrap a backend endpoint, post analytics, etc.) live in utility files instead. List
+  those here so callers can find them, AND keep them in `utility-map.md` (cross-link, do
+  not duplicate the full entry — list name + path here, full entry stays in utility-map).
+
+  Example:
+
+  | Function          | Defined in              | Endpoint(s)            | Full entry          |
+  |-------------------|-------------------------|------------------------|---------------------|
+  | submitUserMetadata | src/utils/api.ts       | POST /users/metadata   | utility-map.md      |
+  | trackEvent         | src/utils/analytics.ts | POST /events           | utility-map.md      |
+
+  If there are no such functions, render literally: `(none — all service-style calls
+  live under src/services/)`.
+-->
+
+## Empty-state rendering
+
+<!--
+  RENDERING GUIDANCE (delete this block when materializing the doc):
+
+  If the project has NO `src/services/` directory AND no service-style functions in
+  utilities, do not generate this file at all — `service-map.md` should be omitted from
+  the inventory list and from the CLAUDE.md routing table.
+
+  If the project has no `src/services/` but DOES have service-style calls inline in
+  components (raw fetch/axios in JSX), still generate this file with the body:
+
+      # Service Map
+
+      No dedicated services layer — API calls are made inline from components.
+      See `patterns/api-integration.md` for the conventions, and consider extracting
+      to `src/services/` if any one endpoint is called from 3+ components.
+
+  This is a convention-violation signal that should also surface in
+  `conventions.md` known-offenders.
 -->

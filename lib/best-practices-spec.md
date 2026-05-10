@@ -43,6 +43,8 @@ The output is a **single combined `best-practices.md`** in the project's `.claud
 
 **Length budget:** ~300–500 lines per major language/framework. Use sub-headings aggressively so Claude can grep to the right section.
 
+**Mandatory at Comprehensive:** A **table of contents** at the top of `best-practices.md` listing every `##` and `###` heading with anchor links. This is non-negotiable at Comprehensive depth — the doc is too long for Claude to grep linearly. The TOC is also mandatory whenever multiple stacks are detected (per the multi-stack rule below), regardless of depth.
+
 **Required sections:**
 - Everything in Standard
 - **Performance** — bundle size, render perf (frontend); query perf, hot paths (backend)

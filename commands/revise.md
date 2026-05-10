@@ -17,7 +17,8 @@ Read these plugin files before doing anything project-side:
 1. **Diff-first, not regenerate-first.** Default action for any doc is *patch*, not *rewrite*. Only rewrite when the doc is materially out of date or the user asks.
 2. **Never lose user edits.** If a doc lacks the `<!-- claudebook: generated ... -->` marker, treat it as user-authored and ask before changing.
 3. **Confirm scope before writing.** Show the changeset summary first; wait for user OK unless ≤5 files all in inventory paths.
-4. **Bump SHA atomically.** Only update `Last commit covered` after all doc writes succeed. Partial success → don't bump.
+4. **Bump SHA atomically.** Only update `Last commit covered` (in `CLAUDEBOOK.md`) after all doc writes succeed. Partial success → don't bump.
+5. **Update each touched doc's marker.** Every doc you patch must have its top-of-file marker `sha=<short-sha>` updated to the current `HEAD` short SHA, and the date refreshed to today. Untouched docs keep their old marker — that's how revise can later see which docs are stale relative to current `HEAD`.
 
 ## Workflow
 
@@ -131,6 +132,8 @@ Set:
 - `Last commit covered: <current HEAD SHA>`
 - `Last revise: YYYY-MM-DD`
 - Update doc index: line counts for any modified docs.
+- Update `CLAUDE.md`'s footer: `Last commit covered: <current HEAD SHA>` (the router file mirrors this for human readability — keep in sync).
+- For every doc you touched in step 6, update its top-of-file marker comment so `sha=<short-sha>` matches the new `HEAD` short SHA and the date is today. Leave untouched docs' markers alone.
 
 ### Step 8 — Final summary
 

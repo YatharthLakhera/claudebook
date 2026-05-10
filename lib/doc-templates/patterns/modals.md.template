@@ -1,4 +1,4 @@
-<!-- claudebook: generated {{DATE}}, depth={{DEPTH}} -->
+<!-- claudebook: generated {{DATE}}, depth={{DEPTH}}, sha={{COMMIT_SHA_SHORT}} -->
 # Modals / Popups
 
 How to build modals in this project. **Specialize from one or two real examples** in the codebase.

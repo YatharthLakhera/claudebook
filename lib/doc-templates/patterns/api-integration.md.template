@@ -1,4 +1,4 @@
-<!-- claudebook: generated {{DATE}}, depth={{DEPTH}} -->
+<!-- claudebook: generated {{DATE}}, depth={{DEPTH}}, sha={{COMMIT_SHA_SHORT}} -->
 # API Integration
 
 How to make HTTP calls in this project. **Specialize this doc** to the project's actual conventions during write — read `{{HTTP_CLIENT_FILE}}` and base the rules on what's there.

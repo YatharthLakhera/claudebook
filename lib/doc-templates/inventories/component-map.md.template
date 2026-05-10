@@ -1,4 +1,4 @@
-<!-- claudebook: generated {{DATE}}, depth={{DEPTH}} -->
+<!-- claudebook: generated {{DATE}}, depth={{DEPTH}}, sha={{COMMIT_SHA_SHORT}} -->
 # Component Map
 
 Per-symbol inventory. Before creating a new component, search this file for the name or purpose. **Reuse over recreate.**

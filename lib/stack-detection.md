@@ -72,6 +72,7 @@ Look for lockfile: `package-lock.json` (npm), `yarn.lock` (yarn), `pnpm-lock.yam
 | `unittest` imports only | Python stdlib |
 | `cargo test` (default in Rust) | Rust built-in |
 | `go test` (default in Go) | Go built-in |
+| None of the above + zero `*.test.*` / `*.spec.*` / `__tests__/` files | **None configured** — render literally as `Test runner: none configured` in the classification table. Do not omit the row, do not write `Test runner: -`, and do not write a stub line like `npm test` in `tech-stack.md` commands. Note this in `conventions.md` known-offenders only if the project is sufficiently mature that missing tests is a real risk. |
 
 ### Linter / formatter
 

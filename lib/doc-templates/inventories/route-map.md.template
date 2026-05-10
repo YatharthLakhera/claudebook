@@ -1,4 +1,4 @@
-<!-- claudebook: generated {{DATE}}, depth={{DEPTH}} -->
+<!-- claudebook: generated {{DATE}}, depth={{DEPTH}}, sha={{COMMIT_SHA_SHORT}} -->
 # Route Map
 
 URL → page/handler map. For frontend file-based routers, this is generated from the routes/pages directory; for code-based routers (e.g. react-router-dom), from the router config; for backends, from route registration files.

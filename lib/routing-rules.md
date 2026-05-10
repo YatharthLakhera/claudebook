@@ -22,11 +22,13 @@ The rules below are heuristics. When a file matches multiple rules, update all m
 | `src/utils/**/*.{ts,js}`, `src/lib/**/*.{ts,js}`, `lib/**/*.py` | `inventories/utility-map.md` |
 | `src/hooks/**/*.{ts,tsx}` (React) | `inventories/hook-map.md` |
 | `src/composables/**/*.{ts,js}` (Vue) | `inventories/hook-map.md` |
-| `src/services/**/*.{ts,js,py}`, `src/api/**` | `inventories/service-map.md` |
+| `src/services/**/*.{ts,js,py}`, `src/api/**` | `inventories/service-map.md` (and `patterns/api-integration.md` if the service makes raw HTTP calls — see note below) |
 | `src/pages/**`, `src/routes/**`, `src/app/**` (Next.js app router), `pages/**` | `inventories/route-map.md` |
 | `src/types/**/*.ts`, `*.d.ts` | `inventories/type-map.md` |
 
 For non-Node stacks, substitute the conventional locations (e.g. Python: `myapp/views.py` → routes; `myapp/models.py` → types/models map).
+
+**HTTP-client convention check for services:** When a `src/services/**` file is added or modified, scan it for raw HTTP calls (`fetch(`, `axios(` direct construction, `XMLHttpRequest`, `ky(` etc.) that bypass the project's centralized client (e.g. `src/utils/api.ts`). If any are found, also flag `patterns/api-integration.md` for review — this is a **convention violation**, not just an inventory entry, and the pattern doc may need a "Recent shift" note or the offending file flagged in `conventions.md` known-offenders.
 
 ### Pattern docs (less frequent — only when conventions actually shift)
 
@@ -61,6 +63,9 @@ Pattern doc updates should be **delta-only** — append new conventions or corre
 | `node_modules/**`, `dist/**`, `build/**`, `.next/**`, `.nuxt/**`, `target/**`, `__pycache__/**` | Build artifacts |
 | `*.lock`, `*.lockb`, `package-lock.json`, `yarn.lock`, `pnpm-lock.yaml` | Lockfile churn — only check if `package.json` itself changed |
 | `*.test.{ts,tsx,js,jsx,py}`, `*.spec.*`, `__tests__/**` | Tests don't change conventions |
+| `*.config.{js,ts,cjs,mjs}` (vite, postcss, tailwind, jest, vitest, etc.) | Build/tool configs — only relevant when adding/removing the tool itself; tailwind theme changes are handled separately |
+| `postcss.config.*`, `babel.config.*`, `.eslintrc.*`, `prettier.config.*` | Tool configs — handled by the project-level rules above only when they imply convention shifts |
+| `amplify.yml`, `vercel.json`, `netlify.toml`, `*.github/workflows/*.yml`, `Dockerfile`, `docker-compose.yml` | Deploy / CI / container — not code conventions |
 | `*.md` under `.claude/docs/` | These are our outputs — don't double-count |
 | Image/binary assets | Not code |
 

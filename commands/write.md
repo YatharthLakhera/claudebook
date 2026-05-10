@@ -20,8 +20,8 @@ Resolve those plugin file paths from your plugin install location. If you cannot
 2. **Templates are scaffolds, not final files.** The on-disk copy in the project must be **specialized to observed conventions** (read the actual code), not pasted verbatim.
 3. **Inventories are per exported symbol**, grouped by file. One entry = name, path, signature/props, purpose, callers if obvious.
 4. **Skip pattern docs that don't apply.** No forms in the project → no `forms.md`. The skill produces only what the codebase needs.
-5. **Mark generated, ask when unsure.** Every generated doc gets a `<!-- claudebook: generated YYYY-MM-DD, depth=<chosen> -->` HTML comment at the top so revise can identify them.
-6. **No emojis.** No marketing prose. Terse, scannable, dense with paths and names.
+5. **Mark generated, ask when unsure.** Every generated doc gets a `<!-- claudebook: generated YYYY-MM-DD, depth=<chosen>, sha=<short-sha> -->` HTML comment at the top so revise can identify them and judge freshness. The `sha` is the 7-char short form of `git rev-parse HEAD` at write time. Future revise runs update this marker on every doc they touch — see `commands/revise.md`.
+6. **No emojis.** No marketing prose. Terse, scannable, dense with paths and names. **This applies to migrated content too** — when promoting existing `AGENTS.md` / `CLAUDE.md` content into the new docs, strip emojis from headings, bullets, and inline text. Do not preserve them verbatim.
 
 ## Workflow
 
@@ -82,7 +82,7 @@ Ask in **one batched** AskUserQuestion call (multiple questions in a single tool
 
 1. **Stack confirmation** — show the detected stack table; options: "Looks right" / "Adjust" (if adjust, follow up).
 2. **Best-practices depth** — Essentials (recommended) / Standard / Comprehensive. Use the descriptions from `lib/best-practices-spec.md`.
-3. **Pattern docs to skip** — show the auto-included list with checkboxes; user can deselect any (multiSelect).
+3. **Pattern docs to skip** — show the auto-included list with checkboxes; user can deselect any (multiSelect). **An empty selection means "skip none"** (i.e. include every auto-detected pattern doc), NOT "skip all". If the user deselects every option, treat that as the natural reading: skip none. If the user genuinely wants to skip everything, they must say so in free-text follow-up.
 4. **Existing CLAUDE.md / AGENTS.md** — only ask if step 1 found user-authored versions. Options: "Migrate content into new docs" (recommended) / "Discard" / "Abort and review manually".
 
 Wait for answers before proceeding.
@@ -93,8 +93,10 @@ Each section below describes what to write into `<project>/.claude/docs/<filenam
 
 **Always include the marker comment at the top:**
 ```html
-<!-- claudebook: generated YYYY-MM-DD, depth=<essentials|standard|comprehensive> -->
+<!-- claudebook: generated YYYY-MM-DD, depth=<essentials|standard|comprehensive>, sha=<short-sha> -->
 ```
+
+The `sha` is `git rev-parse --short HEAD` at write time. If the project is not a git repo, omit the `, sha=...` segment (the marker remains valid).
 
 #### 6a. Project context
 
@@ -167,7 +169,7 @@ Use `lib/doc-templates/CLAUDEBOOK.md.template`. Record:
 
 ### Step 7 — AGENTS.md
 
-If the project had an `AGENTS.md`, replace its contents with exactly:
+If the project had an `AGENTS.md`, replace its contents with the canonical stub at `lib/doc-templates/AGENTS.md.template`. The stub is exactly:
 
 ```markdown
 # AGENTS
@@ -175,7 +177,9 @@ If the project had an `AGENTS.md`, replace its contents with exactly:
 See `CLAUDE.md`.
 ```
 
-If it didn't, do not create one — the convention is CLAUDE.md is canonical.
+Strip emojis and any other formatting from the original — the stub is the entire new content. Any project-specific rules from the original AGENTS.md should already be migrated into `conventions.md` per Step 1.
+
+If the project did not have an `AGENTS.md`, do not create one — the convention is CLAUDE.md is canonical.
 
 ### Step 8 — Final summary
 

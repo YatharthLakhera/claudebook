@@ -1,4 +1,4 @@
-<!-- claudebook: generated {{DATE}}, depth={{DEPTH}} -->
+<!-- claudebook: generated {{DATE}}, depth={{DEPTH}}, sha={{COMMIT_SHA_SHORT}} -->
 # Conventions
 
 Project-specific rules. The "why" matters when judging edge cases — the rationale stays here, not in CLAUDE.md.
