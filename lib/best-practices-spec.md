@@ -89,6 +89,37 @@ The output is a **single combined `best-practices.md`** in the project's `.claud
 
 Top of the file lists which depth was chosen and the date generated, so `/claudebook:revise` can decide whether to refresh.
 
+## Stack-specific section: browser extensions (MV2/MV3)
+
+When the detected stack is a browser extension (per `lib/stack-detection.md` — `manifest.json` with `manifest_version`), the generated `best-practices.md` must include a stack section with extension-specific rules. The generic JS/TS rules apply on top, but they aren't enough — extension code has platform constraints that other JS code doesn't.
+
+**Required at all depths:**
+
+- **Manifest version pinning.** State whether the project is MV2 or MV3 and what that implies (MV3: service-worker model, no remote code, stricter CSP; MV2: deprecated by Chrome — flag for migration if detected).
+- **Service-worker lifetime (MV3).** State that module-level globals do not persist across worker idle/restart. Persist via `chrome.storage`. Don't rely on top-of-file `let` to retain state.
+- **Context isolation.** Content scripts share the DOM with the page but not the JavaScript heap. Page-set globals are invisible to the content script and vice versa. To bridge, inject a web-accessible script and message via `window.postMessage`.
+- **No remote code (MV3 CSP).** All executable JS must ship in the package. No CDN imports, no `import()` of remote URLs.
+- **Permission minimization.** `host_permissions` and broad permissions (`<all_urls>`, `tabs`) trigger Chrome Web Store review and user warnings — flag them as anti-patterns unless justified.
+
+**Standard depth adds:**
+
+- **Cross-context messaging idioms.** When to use `chrome.runtime.sendMessage` vs `chrome.tabs.sendMessage` vs `window.postMessage`. The Promise vs callback shape difference between MV2 and MV3.
+- **Storage choice rationale.** `chrome.storage.local` vs `.sync` vs `.session` trade-offs. Why `localStorage` is fine in popup/options but never in the service worker.
+- **`web_accessible_resources` minimization.** Only expose what page JS actually needs.
+
+**Comprehensive depth adds:**
+
+- **CSP construction.** Default extension CSP, what `extension_pages` vs `sandbox` allows, when a custom CSP is justified.
+- **Update flow.** What happens to in-flight messages and storage during extension update. Migration patterns for `chrome.storage` schema changes.
+- **Performance.** Service-worker startup cost; deferring heavy work to first message; avoiding unnecessary `chrome.tabs.query` calls; debouncing event listeners.
+- **Security.** Origin checks on `window.postMessage`; treating page-side content as untrusted in content scripts; `externally_connectable` allowlists.
+
+This section is in addition to (not a replacement for) the JS/TS section. Extensions almost always have JS rules from React/Vue/etc. on top of these platform rules.
+
+## Future stack sections
+
+The same approach applies to other narrow-platform stacks when the plugin learns to detect them: VS Code extensions, mobile (React Native, Flutter), Electron, etc. Add a stack-specific section here when adding detection for that stack to `lib/stack-detection.md`.
+
 ## When `/claudebook:revise` should refresh this doc
 
 - A major version bump in a detected framework (`react ^17` → `^18`)

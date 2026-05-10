@@ -255,6 +255,10 @@ The docs `claudebook` generated inside your project (`CLAUDE.md`, `.claude/docs/
 
 PRs welcome. The two command files in `commands/` and the templates / rules under `lib/` are the entire surface area — keep them simple, terse, and scannable.
 
+### Heads-up: pre-write security hooks
+
+If you have a project-level pre-write hook that string-matches risky API names (e.g. the dynamic-function-body constructor, raw-HTML setters, or `eval`), it will block edits to plugin files that *describe* those APIs even when the surrounding text is advice not to use them. `lib/best-practices-spec.md` has a rule (rule 7) about phrasing security guidance descriptively for exactly this reason — apply the same wording style when editing plugin files yourself, or your edits will be blocked.
+
 ## License
 
 [MIT](./LICENSE)

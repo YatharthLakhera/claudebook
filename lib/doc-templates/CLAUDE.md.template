@@ -118,7 +118,7 @@
 
 ## Maintenance
 
-This documentation is generated and maintained by the [`claudebook`](https://github.com/) plugin.
+This documentation is generated and maintained by the [`claudebook`](https://github.com/YatharthLakhera/claudebook) plugin.
 
 - Run `/claudebook:revise` after merging significant changes.
 - Last write: {{DATE}}
