@@ -33,8 +33,9 @@ The patterns below use `(src|libs|lib|app)` as a placeholder for "wherever this 
 |---|---|
 | `(src\|libs\|lib\|app)/components/**/*.{tsx,jsx,vue,svelte}` (new/deleted/renamed) | `inventories/component-map.md` |
 | `(src\|libs\|lib\|app)/components/**/*.{tsx,jsx}` (modified — props or exports changed) | `inventories/component-map.md` |
-| `(src\|libs\|lib\|app)/utils/**/*.{ts,js}`, `(src\|libs\|lib\|app)/lib/**/*.{ts,js}`, `lib/**/*.py`, root `*.js` matching `*util*` / `*helper*` | `inventories/utility-map.md` |
+| `(src\|libs\|lib\|app)/utils/**/*.{ts,js}`, `(src\|libs\|lib\|app)/lib/**/*.{ts,js}`, `(src\|libs\|lib\|app)/config/**`, `(src\|libs\|lib\|app)/constants/**`, `(src\|libs\|lib\|app)/data/**`, `(src\|libs\|lib\|app)/fixtures/**`, `lib/**/*.py`, root `*.js` matching `*util*` / `*helper*` | `inventories/utility-map.md` |
 | `(src\|libs\|lib\|app)/hooks/**/*.{ts,tsx}` (React) | `inventories/hook-map.md` |
+| Any file in `src/**` exporting an identifier matching `^use[A-Z]` (React hook convention) — see "Hook discovery beyond /hooks" below | `inventories/hook-map.md` |
 | `(src\|libs\|lib\|app)/composables/**/*.{ts,js}` (Vue) | `inventories/hook-map.md` |
 | `(src\|libs\|lib\|app)/services/**/*.{ts,js,py}`, `(src\|libs\|lib\|app)/api/**`, `apis/**` | `inventories/service-map.md` (and `patterns/api-integration.md` if the service makes raw HTTP calls — see note below) |
 | `(src\|libs\|lib\|app)/pages/**`, `(src\|libs\|lib\|app)/routes/**`, `(src\|libs\|lib\|app)/app/**` (Next.js app router), `pages/**` | `inventories/route-map.md` |
@@ -42,6 +43,16 @@ The patterns below use `(src|libs|lib|app)` as a placeholder for "wherever this 
 | Browser extension: `content_scripts` files per `manifest.json`, `background.{js,ts}`, `popup/**`, `options/**` | `inventories/component-map.md` (entry points) AND `patterns/browser-extension.md` if convention shifted |
 
 For non-Node stacks, substitute the conventional locations (e.g. Python: `myapp/views.py` → routes; `myapp/models.py` → types/models map). For browser extensions, treat each `manifest.json` entry point (background, content scripts, popup, options) as an inventory entry — the manifest itself is the source of truth, not folder layout.
+
+**Hook discovery beyond `/hooks/`.** Hooks are a naming convention, not a directory. A file like `src/components/commons/login.tsx` may export `useBetaAccess` and the path glob alone misses it. To find these:
+
+```sh
+git grep -nE '^export (default )?(function|const) use[A-Z]' -- 'src/**/*.{ts,tsx,js,jsx}'
+```
+
+Run this at write time and at revise time when classifying changed `.tsx`/`.jsx` files. Any match outside the hooks directory still belongs in `inventories/hook-map.md`. If the hook is also exported from a component file, the entry should note the dual role: `Path: src/components/commons/login.tsx (also exports <Login> component)`.
+
+The same idea applies to other naming conventions when you encounter them — e.g. Vue composables (`use*`) outside `composables/`, custom service-style functions (`*Service`, `*Api`) outside services/. Don't blindly grep everywhere, but don't trust folder structure as the only signal either.
 
 **HTTP-client convention check for services:** When a `src/services/**` file is added or modified, scan it for raw HTTP calls (`fetch(`, `axios(` direct construction, `XMLHttpRequest`, `ky(` etc.) that bypass the project's centralized client (e.g. `src/utils/api.ts`). If any are found, also flag `patterns/api-integration.md` for review — this is a **convention violation**, not just an inventory entry, and the pattern doc may need a "Recent shift" note or the offending file flagged in `conventions.md` known-offenders.
 
@@ -55,7 +66,7 @@ For non-Node stacks, substitute the conventional locations (e.g. Python: `myapp/
 | Table component added/changed | `patterns/tables.md` |
 | `tailwind.config.*` modified, or theme tokens / CSS variables changed | `patterns/styling.md` |
 | `src/contexts/**` or store files changed | `patterns/state-management.md` |
-| Route file added/removed | `patterns/routing.md` AND `inventories/route-map.md` |
+| Route file added/removed | `patterns/routing.md` (procedure only) AND `inventories/route-map.md` (table only) — see ownership rule below |
 | `manifest.json` modified (browser extension) — permissions, content_scripts, web_accessible_resources, background changed | `patterns/browser-extension.md` AND `tech-stack.md` if scope materially shifted |
 
 Pattern doc updates should be **delta-only** — append new conventions or correct stale claims. Do not rewrite the whole doc unless the user requests it.
@@ -88,6 +99,18 @@ Pattern doc updates should be **delta-only** — append new conventions or corre
 ## Conflict resolution
 
 If a single change implies updating both a pattern doc *and* an inventory, update the inventory first (factual), then the pattern doc (interpretive). Pattern doc updates may need user input — surface a one-line summary and ask before rewriting prose.
+
+### Pattern-doc vs inventory ownership
+
+Some doc pairs frequently overlap. Apply these splits to avoid duplication:
+
+| Pair | Procedure / how-to lives in | Directory / table lives in |
+|---|---|---|
+| `patterns/routing.md` ↔ `inventories/route-map.md` | `routing.md` — how to add a new route, what wraps the routes (auth gate, lazy loading, error boundary), redirect conventions | `route-map.md` — the table of all current routes (path, file, guard, lazy?) |
+| `patterns/api-integration.md` ↔ `inventories/service-map.md` | `api-integration.md` — retry/auth/error handling, base URL, interceptor shape | `service-map.md` — the table of services (name, path, signature, endpoints touched) |
+| `patterns/state-management.md` ↔ `inventories/*-map.md` | `state-management.md` — store shape, action conventions, selector patterns | (n/a — state lives by feature; refer to feature inventories) |
+
+Each template's top-of-file ownership block should restate this explicitly: "do not duplicate — see the paired doc for X." When patching either side during revise, check the paired doc and *remove* duplicated prose if found.
 
 ## Output: revise summary
 

@@ -1,0 +1,106 @@
+<!-- claudebook: generated {{DATE}}, depth={{DEPTH}}, sha={{COMMIT_SHA_SHORT}} -->
+# Integrations
+
+Third-party SDKs initialized in this app — analytics, error tracking, email, session replay, feature flags, etc. **Specialize this doc** to the SDKs actually present (read the entry file before writing).
+
+## Ownership
+
+This doc owns SDK init, key/secret handling, env branching, and load order. Per-feature usage (e.g. "how to track a button click in component X") stays close to the feature — do not duplicate call sites here.
+
+If an SDK exposes an HTTP-style client that the app actually uses for arbitrary API calls (not just SDK-internal), prefer documenting that part in `patterns/api-integration.md` and cross-link.
+
+## SDKs initialized
+
+{{SDK_TABLE}}
+
+<!--
+  One row per third-party SDK init'd in the entry file (main.tsx / index.ts / app.tsx / etc.).
+  Example:
+
+  | SDK             | Purpose                  | Init location           | Env key(s)                          | Init order |
+  |-----------------|--------------------------|--------------------------|-------------------------------------|------------|
+  | Sentry          | Error + perf tracking    | src/main.tsx (top)       | VITE_SENTRY_DSN                     | 1 (first)  |
+  | Mixpanel        | Product analytics        | src/main.tsx             | VITE_MIXPANEL_TOKEN                 | 2          |
+  | Microsoft Clarity | Session replay         | src/main.tsx             | VITE_CLARITY_PROJECT_ID             | 3          |
+  | EmailJS         | Contact-form delivery    | src/components/Contact.tsx (lazy) | VITE_EMAILJS_PUBLIC_KEY, _SERVICE_ID, _TEMPLATE_ID | n/a (lazy) |
+
+  Init order matters when one SDK depends on another being installed first
+  (e.g. error tracker should boot before anything that might throw).
+-->
+
+## Init order rules
+
+{{INIT_ORDER}}
+
+<!--
+  Rationale for the order, and any "must be before X" constraints:
+
+  - Error tracker first — so any throw during later init is captured.
+  - Analytics second — so identify() can run as soon as auth resolves.
+  - Session replay third — recording can start mid-session.
+  - Feature flags before any feature-flag-gated code path runs (often this
+    means before React hydration).
+
+  If an SDK is init'd lazily (only on a specific page or interaction), say so
+  here and link to the file.
+-->
+
+## Environment branching
+
+{{ENV_BRANCHING}}
+
+<!--
+  Which SDKs run in which environments.
+
+  | SDK          | dev | preview | production |
+  |--------------|-----|---------|------------|
+  | Sentry       | off | on      | on         |
+  | Mixpanel     | off | on      | on         |
+  | Clarity      | off | off     | on         |
+  | EmailJS      | on  | on      | on         |
+
+  Document the env check (e.g. `import.meta.env.PROD`, `process.env.NODE_ENV`)
+  and where the gating lives. Avoid scattering env checks — centralize in the
+  init module if there are 2+.
+-->
+
+## Keys and secrets
+
+{{KEYS}}
+
+<!--
+  - All client-side SDK keys live in `.env` files prefixed per the build tool
+    (`VITE_*`, `NEXT_PUBLIC_*`, `REACT_APP_*`). They are PUBLIC by deploy time.
+  - Server-only secrets (e.g. SendGrid API keys) never go in client envs.
+  - Document the .env.example shape so new contributors know what to fill in.
+  - If keys rotate, document the rotation cadence and where new keys come from.
+-->
+
+## User identification
+
+{{IDENTIFY}}
+
+<!--
+  When and how user identity is propagated to each SDK. Example:
+
+  - On login success: Sentry.setUser({ id, email }), mixpanel.identify(id).
+  - On logout: Sentry.setUser(null), mixpanel.reset().
+  - Anonymous users: Mixpanel uses its auto-generated distinct_id; Sentry
+    keeps user null.
+
+  Centralize identify/reset in one auth-state hook — do not call from random
+  components.
+-->
+
+## Common pitfalls
+
+{{PITFALLS}}
+
+<!--
+  - Initializing analytics before consent in regions that require it (GDPR).
+  - Loading session replay on auth pages where it captures passwords.
+  - Hardcoded keys in src/ instead of .env (commit history may leak them).
+  - Calling SDK methods before init completes — wrap in `if (sdk.initialized)` or queue.
+  - Multiple instances of the same SDK init'd by HMR in dev — guard with a module-level flag.
+  - Other gotchas observed in this project's code.
+-->

@@ -1,4 +1,5 @@
 <!-- claudebook: generated {{DATE}}, depth={{DEPTH}}, sha={{COMMIT_SHA_SHORT}} -->
+<!-- LOCATION: this file lives at the project ROOT (<project>/CLAUDE.md), NOT under .claude/docs/. Claude Code loads it on session startup from the root. -->
 # CLAUDE.md
 
 > Router file. Always loaded into Claude's context. Keep ≤200 lines.

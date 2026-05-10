@@ -102,3 +102,25 @@ The directories this project actually uses for each kind of code. `/claudebook:r
   Any non-obvious decisions made during write/revise that revise needs to remember.
   e.g. "User opted to keep src/legacy/ unmapped — exclude from inventories."
 -->
+
+## Known hook conflicts
+
+{{KNOWN_HOOK_CONFLICTS}}
+
+<!--
+  Pre-write hooks (project-level or user-level) that block writes containing certain
+  string literals — even when the surrounding text is advice not to use them. Record
+  any encountered during write/revise so future runs can phrase guidance descriptively
+  upfront instead of hitting the trip-wire and retrying.
+
+  See `lib/best-practices-spec.md` rule 7 for the standard descriptive-phrasing pattern.
+
+  Format:
+
+  | Hook                              | Trip-wire literal(s)                | Workaround |
+  |-----------------------------------|-------------------------------------|------------|
+  | security_reminder_hook.py         | the dynamic-function-body constructor | Phrased descriptively in best-practices.md |
+  | (none encountered)                | —                                   | —          |
+
+  If no conflicts have been encountered, render literally: `(none encountered)`.
+-->

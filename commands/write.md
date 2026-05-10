@@ -32,7 +32,8 @@ Resolve those plugin file paths from your plugin install location. If you cannot
 3. Check for `CLAUDE.md`, `AGENTS.md`, `.claude/docs/`. If any exist:
    - If they look claudebook-generated (have the marker comment), suggest `/claudebook:revise` and stop.
    - If user-authored, preserve their content as **input** — extract any project-specific rules and feed them into the new `conventions.md`. Confirm with the user before overwriting.
-4. Note the absolute path of the project root. All subsequent writes go under it.
+4. **Scan the repo root for other user-authored markdown.** List every top-level `*.md` file other than the noise ones (`README.md`, `CHANGELOG.md`, `CHANGELOG`, `LICENSE.md`, `LICENSE`, `CODE_OF_CONDUCT.md`, `CONTRIBUTING.md`, `SECURITY.md`, the two above). Examples that ARE relevant: `ANALYTICS_SETUP.md`, `DEPLOY.md`, `ARCHITECTURE.md`, `NOTES.md`, `TODO.md`. For each, surface to the user with the same options as `AGENTS.md`: "Migrate content into the appropriate generated doc" (recommended — usually `architecture.md`, `conventions.md`, or a pattern doc), "Leave in place" (default for things like ARCHITECTURE.md if user wants to keep curated prose), or "Discard". Do NOT auto-delete user files. After migration, leave a one-line stub pointing at the new location only if the user picks "migrate".
+5. Note the absolute path of the project root. All subsequent writes go under it.
 
 ### Step 2 — Detect stack
 
@@ -82,6 +83,7 @@ Pattern docs — generate only if the codebase actually uses the pattern:
 | `state-management.md` | Always |
 | `routing.md` | Routing solution present |
 | `browser-extension.md` | `manifest.json` with `manifest_version` field detected (MV2/MV3 extension) |
+| `integrations.md` | ≥2 third-party SDKs init'd in the entry file (analytics, error tracking, session replay, feature flags, email, etc.) — grep the entry file for `init(`, `Sentry.init`, `mixpanel.init`, `clarity(`, `posthog.init`, `emailjs.init`, `LDClient.initialize`, etc. |
 
 Project docs — always: `overview.md`, `architecture.md`, `tech-stack.md`, `conventions.md`, `best-practices.md`.
 
@@ -91,14 +93,24 @@ Ask in **one batched** AskUserQuestion call (multiple questions in a single tool
 
 1. **Stack confirmation** — show the detected stack table; options: "Looks right" / "Adjust" (if adjust, follow up).
 2. **Best-practices depth** — Essentials (recommended) / Standard / Comprehensive. Use the descriptions from `lib/best-practices-spec.md`.
-3. **Pattern docs to skip** — show the auto-included list with checkboxes; user can deselect any (multiSelect). **An empty selection means "skip none"** (i.e. include every auto-detected pattern doc), NOT "skip all". If the user deselects every option, treat that as the natural reading: skip none. If the user genuinely wants to skip everything, they must say so in free-text follow-up.
+3. **Pattern docs to skip** — show the auto-included list with checkboxes; user can deselect any (multiSelect). **An empty selection means "skip none"** (i.e. include every auto-detected pattern doc), NOT "skip all". This applies whether the user (a) selected zero options, (b) didn't see/answer the question (e.g. answered only some questions in the batched call), or (c) answered with a no-op response. The default is always "include every detected pattern." If the user genuinely wants to skip everything, they must say so in free-text follow-up.
 4. **Existing CLAUDE.md / AGENTS.md** — only ask if step 1 found user-authored versions. Options: "Migrate content into new docs" (recommended) / "Discard" / "Abort and review manually".
 
 Wait for answers before proceeding.
 
 ### Step 6 — Generate docs in dependency order
 
-Each section below describes what to write into `<project>/.claude/docs/<filename>`. Use `Write`, not `Edit` (these are new files). The tone for every doc: terse, factual, scannable. Bullet points and tables over prose.
+**File-location rules** (important — do not get this wrong):
+
+| File | Goes here |
+|---|---|
+| `CLAUDE.md` (the router) | `<project>/CLAUDE.md` — at the project ROOT. Claude Code expects it there. |
+| `AGENTS.md` (the stub, if migrated) | `<project>/AGENTS.md` — at the project ROOT. |
+| Everything else (`overview.md`, `architecture.md`, `tech-stack.md`, `conventions.md`, `best-practices.md`, `CLAUDEBOOK.md`, `inventories/*.md`, `patterns/*.md`) | `<project>/.claude/docs/<filename>` |
+
+If you put `CLAUDE.md` under `.claude/docs/`, Claude Code will not find it on session startup and the whole router is dead. Likewise, `CLAUDEBOOK.md` at project root would be confusing — it's a meta file, kept with the docs it tracks.
+
+Use `Write`, not `Edit` (these are new files). The tone for every doc: terse, factual, scannable. Bullet points and tables over prose.
 
 **Always include the marker comment at the top:**
 ```html
@@ -135,7 +147,21 @@ Each pattern doc should be ≤100 lines. If a pattern is huge, link to the most 
 For each inventory to generate:
 1. List source files in scope (per the path table above).
 2. For each file, identify exported symbols. Use `grep` / file reads judiciously — full reads only when the export shape isn't obvious.
-3. For each exported symbol, write one entry:
+3. **Build a reverse-import index once, before populating any "Used by" fields.** This avoids repeating the same grep per symbol. Run something like:
+
+   ```sh
+   git grep -nE "from ['\"][^'\"]*<symbol-name>['\"]|import.*<symbol-name>" -- 'src/**/*.{ts,tsx,js,jsx}'
+   ```
+
+   Or for the whole inventory in one pass:
+
+   ```sh
+   git grep -nE "^import|^const.*= require\(" -- 'src/**/*.{ts,tsx,js,jsx}'
+   ```
+
+   Cache the results in working memory keyed by imported-symbol → list of importing files. Then look up each symbol's callers from the cache instead of re-grepping.
+
+4. For each exported symbol, write one entry:
 
 ```markdown
 ### <SymbolName>
@@ -143,8 +169,10 @@ For each inventory to generate:
 - Kind: <component | hook | util | service | type | route>
 - Purpose: <one line>
 - Signature: <props/args/return — abbreviated>
-- Used by: <2–3 callers if quick to find, else "—">
+- Used by: <2–3 callers from the reverse-import index, OR omit this field entirely>
 ```
+
+**`Used by` is optional.** If the reverse-import index has no hits for a symbol (e.g. unused export, dynamic import, JSX usage that doesn't show in import lines), **omit the field entirely** — do not write `Used by: —`. The dash is noise; absence is information ("we couldn't quickly identify callers"). The reader can grep when they need to. Aim for `Used by` populated when you have it, omitted when you don't, never `—`.
 
 Group entries by feature subfolder. If a project has 100+ symbols of one kind, split into per-feature inventory files (`component-map-<feature>.md`) and link from the top-level map.
 
@@ -166,7 +194,9 @@ Use `lib/doc-templates/CLAUDE.md.template`. Fill in:
 
 Keep CLAUDE.md ≤200 lines. If it's longer, the routing table is too verbose — collapse rare entries.
 
-#### 6g. CLAUDEBOOK.md (meta)
+#### 6g. CLAUDEBOOK.md (meta) — write LAST
+
+Write CLAUDEBOOK.md only after every other doc has been written. Reasons: (a) the doc index needs accurate line counts, (b) the Notes section may need to record decisions surfaced during generation.
 
 Use `lib/doc-templates/CLAUDEBOOK.md.template`. Record:
 - Skill version (read from `.claude-plugin/plugin.json`)
@@ -174,7 +204,13 @@ Use `lib/doc-templates/CLAUDEBOOK.md.template`. Record:
 - Stack detected
 - Depth chosen
 - Last commit covered: current `HEAD` SHA
-- Doc index: every file generated with line count
+- **Doc index with accurate line counts.** Run `wc -l` on each generated file rather than estimating:
+
+  ```sh
+  wc -l <project>/CLAUDE.md <project>/.claude/docs/**/*.md
+  ```
+
+  Use the actual integer from `wc -l` in the doc index table. Do not estimate from memory — estimates are routinely off by 5–20 lines and the table is meant to be authoritative.
 - **Convention paths table** — populate from Step 3. One row per kind of code with the actual glob(s) used in this project. This is what `/claudebook:revise` reads to route `git diff` paths to docs without assuming `src/**`.
 
 ### Step 7 — AGENTS.md

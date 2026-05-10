@@ -3,7 +3,11 @@
 
 How URLs map to UI. **Specialize to the actual router** in use.
 
-For the full path → component table, see `inventories/route-map.md`.
+## Ownership
+
+This doc owns the **how**: router choice, how to add a route, auth guards, layouts, navigation idioms, pitfalls.
+
+The **table of current routes** (path, file, guard, lazy) lives in `inventories/route-map.md`. Do not duplicate it here — link to it. When revise patches either side, check the other and remove duplicated prose if found.
 
 ## Router
 
