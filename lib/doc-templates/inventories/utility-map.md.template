@@ -1,0 +1,45 @@
+<!-- claudebook: generated {{DATE}}, depth={{DEPTH}} -->
+# Utility Map
+
+Pure functions and helpers in `src/utils/` (or stack equivalent). Before writing a helper, search here.
+
+{{UTILITIES_BY_FILE}}
+
+<!--
+  Group by source file. One section per file.
+
+  ## src/utils/api.ts
+  ### api (default export)
+  - Kind: axios instance (singleton)
+  - Purpose: Centralized HTTP client with auth + country headers + error interceptor.
+  - Used everywhere — never construct another axios instance.
+
+  ### handleApiError (named export)
+  - Kind: function
+  - Purpose: Normalize error responses into { message, status, code }.
+  - Signature: (err: unknown) => { message: string; status: number; code?: string }
+
+  ## src/utils/format.ts
+  ### formatCurrency
+  - Kind: function
+  - Purpose: Format number as USD/locale currency string.
+  - Signature: (value: number, currency?: string) => string
+
+  ### formatDate
+  - Kind: function
+  - Purpose: Format Date as "MMM d, yyyy" (uses date-fns).
+  - Signature: (date: Date | string) => string
+-->
+
+## Index by purpose
+
+{{PURPOSE_INDEX}}
+
+<!--
+  Optional. Useful when 20+ utils exist.
+
+  | Need                       | Util                     |
+  |---------------------------|--------------------------|
+  | Format number as currency | formatCurrency (format.ts) |
+  | Parse xlsx upload         | parseSheet (xlsx.ts)       |
+-->

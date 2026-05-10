@@ -1,0 +1,43 @@
+<!-- claudebook: generated {{DATE}}, depth={{DEPTH}} -->
+# Overview
+
+## What this is
+
+{{ONE_PARAGRAPH_PURPOSE}}
+
+<!--
+  3–5 sentences. What the product does. Who uses it. The single most important
+  thing it has to be true about (e.g. "must work offline", "PCI-compliant",
+  "internal tool — UX polish secondary to data accuracy").
+  Pull from README + manifest + user input. No marketing.
+-->
+
+## Primary users
+
+{{USER_PERSONAS}}
+
+<!--
+  Bullet list. One line each. e.g.
+  - Amazon sellers managing 100–10k SKUs
+  - Internal ops team for catalog uploads
+-->
+
+## Key flows
+
+{{KEY_FLOWS}}
+
+<!--
+  3–6 user-visible flows that drive most of the code. e.g.
+  1. Onboarding → Amazon SP-API connect → catalog sync
+  2. Catalog upload (xlsx) → batch analysis → results review
+  3. Wholesale supplier integration → reorder workflow
+-->
+
+## Out of scope
+
+{{OUT_OF_SCOPE}}
+
+<!--
+  Things the product deliberately does NOT do. Useful for keeping
+  feature work focused. Skip section if user can't articulate this clearly.
+-->

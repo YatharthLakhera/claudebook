@@ -1,0 +1,83 @@
+<!-- claudebook: generated {{DATE}}, depth={{DEPTH}} -->
+# Tables
+
+Patterns for rendering tabular data. **Specialize from one or two real tables** in the codebase.
+
+## Library / approach
+
+{{APPROACH}}
+
+<!--
+  e.g. "Native <table> with Tailwind. No table library. For sortable +
+  paginated tables, see <example.tsx>."
+  OR
+  "TanStack Table v8 with custom cell renderers. See <example>."
+-->
+
+## Canonical example
+
+{{EXAMPLE}}
+
+<!--
+  Cite the file: `src/components/dashboard/InventoryTable.tsx` or similar.
+  Note what's worth copying (sort, pagination, row selection).
+-->
+
+## Sorting
+
+{{SORTING}}
+
+<!--
+  - How sort state is held (local state, URL param, server-driven)
+  - Multi-sort? (yes/no)
+  - Sort indicator UI
+-->
+
+## Pagination
+
+{{PAGINATION}}
+
+<!--
+  - Server-side or client-side?
+  - Page size default + options
+  - Component used for the controls
+-->
+
+## Selection
+
+{{SELECTION}}
+
+<!--
+  - Single vs multi
+  - "Select all on page" vs "select all matching"
+  - Where selected state lives (table, parent, context)
+-->
+
+## Empty / loading / error states
+
+{{STATES}}
+
+<!--
+  - Empty state design (icon + message + CTA?)
+  - Loading skeleton vs spinner
+  - Error retry button
+-->
+
+## Performance
+
+{{PERFORMANCE}}
+
+<!--
+  - Virtualization threshold (e.g. >500 rows → react-window)
+  - Memoization rules for cell renderers
+-->
+
+## Common pitfalls
+
+{{PITFALLS}}
+
+<!--
+  - Re-rendering the whole table when one cell changes (useCallback for column defs).
+  - Sort state surviving filter changes when it shouldn't.
+  - Pagination resetting unexpectedly when a parent re-renders.
+-->

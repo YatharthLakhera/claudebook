@@ -1,0 +1,53 @@
+<!-- claudebook: generated {{DATE}}, depth={{DEPTH}} -->
+# CLAUDEBOOK
+
+Meta file. Tracks state for `/claudebook:revise`. Do not hand-edit unless you know what you're doing.
+
+## State
+
+- **Plugin version:** {{PLUGIN_VERSION}}
+- **Last write:** {{DATE_WRITE}}
+- **Last revise:** {{DATE_REVISE}}
+- **Last commit covered:** `{{COMMIT_SHA}}`
+
+## Configuration
+
+- **Best-practices depth:** {{DEPTH}}
+- **Stack detected:**
+
+```
+{{STACK_TABLE}}
+```
+
+## Doc index
+
+| Path | Lines | Last touched |
+|---|---|---|
+{{DOC_INDEX_TABLE}}
+
+<!--
+  Generated rows look like:
+  | .claude/docs/overview.md            |  42 | {{DATE_WRITE}} |
+  | .claude/docs/architecture.md        |  61 | {{DATE_WRITE}} |
+  | .claude/docs/inventories/component-map.md | 312 | {{DATE_WRITE}} |
+  ...
+-->
+
+## Skipped pattern docs
+
+{{SKIPPED_PATTERNS_LIST}}
+
+<!--
+  e.g.:
+  - patterns/forms.md — no forms detected in src/
+  - patterns/tables.md — no table components detected
+-->
+
+## Notes
+
+{{NOTES}}
+
+<!--
+  Any non-obvious decisions made during write/revise that revise needs to remember.
+  e.g. "User opted to keep src/legacy/ unmapped — exclude from inventories."
+-->

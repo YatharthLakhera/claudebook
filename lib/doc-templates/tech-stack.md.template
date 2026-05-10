@@ -1,0 +1,50 @@
+<!-- claudebook: generated {{DATE}}, depth={{DEPTH}} -->
+# Tech Stack
+
+## Snapshot
+
+| Layer | Choice | Version |
+|---|---|---|
+{{STACK_TABLE}}
+
+<!--
+  Rows for: Language, Framework, Build tool, Package manager, Test runner,
+  Linter, Formatter, Styling, State, Routing, HTTP, ORM/DB, Analytics.
+  Skip rows that don't apply.
+-->
+
+## Constraints these choices impose
+
+{{CONSTRAINTS}}
+
+<!--
+  Tie each constraint to a rule in conventions.md or a pattern doc.
+  Example:
+  - axios is the only HTTP client — `fetch()` is forbidden so the auth/error
+    interceptor in src/utils/api.ts always runs. See patterns/api-integration.md.
+  - TailwindCSS only — custom CSS files are not allowed. See patterns/styling.md.
+  - React 18 batching means setState calls in async callbacks DO batch (different
+    from React 17). See best-practices.md.
+-->
+
+## Notable dependencies
+
+{{DEPS}}
+
+<!--
+  One line per dep that materially affects code patterns. Skip trivial deps.
+  Example:
+  - axios 1.10 — centralized instance in src/utils/api.ts
+  - lucide-react 0.522 — icon library; do not introduce others
+  - react-toastify 10 — toast UX (top-right, 3s default)
+  - mixpanel-browser 2.73 — analytics; events tracked via src/utils/analytics.ts
+-->
+
+## Versions to watch
+
+{{VERSION_NOTES}}
+
+<!--
+  Any pin justifications, known incompat, or upcoming upgrades.
+  Skip if nothing material.
+-->

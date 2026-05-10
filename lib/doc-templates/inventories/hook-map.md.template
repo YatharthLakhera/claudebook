@@ -1,0 +1,26 @@
+<!-- claudebook: generated {{DATE}}, depth={{DEPTH}} -->
+# Hook Map
+
+Custom React hooks (or Vue composables). Before writing a hook, search here for prior art.
+
+{{HOOKS_BY_FILE}}
+
+<!--
+  One section per file. Format:
+
+  ## src/hooks/useAuth.ts
+  ### useAuth
+  - Purpose: Read-only access to current user + login/logout actions.
+  - Signature: () => { user: User | null; login: (...) => Promise<void>; logout: () => void }
+  - Reads from: AuthContext
+
+  ## src/hooks/useDebounce.ts
+  ### useDebounce
+  - Purpose: Debounce a value across renders.
+  - Signature: <T>(value: T, delay: number) => T
+  - Note: For input-driven queries, prefer useDebouncedCallback in same file.
+
+  ### useDebouncedCallback
+  - Purpose: Debounce a callback by N ms.
+  - Signature: <Args extends unknown[]>(fn: (...args: Args) => void, delay: number) => (...args: Args) => void
+-->

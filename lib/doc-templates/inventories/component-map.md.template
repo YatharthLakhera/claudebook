@@ -1,0 +1,69 @@
+<!-- claudebook: generated {{DATE}}, depth={{DEPTH}} -->
+# Component Map
+
+Per-symbol inventory. Before creating a new component, search this file for the name or purpose. **Reuse over recreate.**
+
+If a symbol's `Purpose:` reads `TBD`, treat it as unknown — read the file before relying on it.
+
+## Common (used in 3+ places)
+
+{{COMMON_COMPONENTS}}
+
+<!--
+  Format per entry:
+
+  ### Button
+  - Path: src/components/common/Button.tsx
+  - Kind: component
+  - Purpose: Variant button (primary/secondary/danger) with loading + icon.
+  - Props: { variant, size, loading?, icon?, children, onClick, disabled? }
+  - Used by: Forms (Submit), Modals (Confirm), Dashboard (multiple)
+
+  ### DatePicker
+  - Path: src/components/common/DatePicker.tsx
+  - Kind: component
+  - Purpose: Date range picker with presets (Today, 7d, 30d, custom).
+  - Props: { value: [Date, Date], onChange, presets?, max? }
+  - Used by: Dashboard, Reports
+-->
+
+## By feature
+
+{{FEATURE_GROUPS}}
+
+<!--
+  One subsection per feature folder under src/components/.
+  Example:
+
+  ## auth/
+  ### LoginForm
+  - Path: src/components/auth/LoginForm.tsx
+  - Kind: component
+  - Purpose: Email + password login with Google SSO.
+  - Props: { onSuccess: (user: User) => void }
+  - Used by: pages/Login.tsx
+
+  ## dashboard/
+  ### Inventory
+  - Path: src/components/dashboard/Inventory.tsx
+  - Kind: component (page-level)
+  - Purpose: Main inventory table with filters and bulk actions.
+  - Props: none (uses contexts)
+  - Used by: pages/Dashboard.tsx
+  - Note: 1158 lines — flagged for refactor (see conventions.md).
+-->
+
+## Index by purpose
+
+{{PURPOSE_INDEX}}
+
+<!--
+  Optional. Generate only if there are 30+ components — it's a quick lookup
+  table from "I need to do X" to component name.
+
+  | Need                              | Component       |
+  |-----------------------------------|-----------------|
+  | Show a confirmation dialog        | ConfirmModal    |
+  | Show a date range picker          | DatePicker      |
+  | Show a sortable table             | DataTable       |
+-->

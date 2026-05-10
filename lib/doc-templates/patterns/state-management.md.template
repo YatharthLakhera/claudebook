@@ -1,0 +1,76 @@
+<!-- claudebook: generated {{DATE}}, depth={{DEPTH}} -->
+# State Management
+
+Where state lives and why. **Specialize to the actual approach** observed in code.
+
+## Approach
+
+{{APPROACH}}
+
+<!--
+  e.g. "React Context for cross-cutting state (Auth, Marketplace, Sidebar).
+  Local useState for component state. No Redux, no Zustand. Server state
+  is not cached — every page refetches on mount."
+-->
+
+## Contexts
+
+{{CONTEXTS}}
+
+<!--
+  One entry per context provider:
+
+  ### AuthContext
+  - File: src/contexts/AuthContext.tsx
+  - Holds: user, login, logout, isAuthenticated
+  - Provider mounts in: src/main.tsx
+  - Consumed via: useAuth() hook
+-->
+
+## When local state is OK
+
+{{LOCAL_STATE}}
+
+<!--
+  e.g. "Form fields, modal open/close, tab selection, table sort/page.
+  Anything not needed across more than one component subtree."
+-->
+
+## When to lift / put in Context
+
+{{LIFT}}
+
+<!--
+  e.g. "Lift to nearest common parent if 2 siblings need it. Promote to
+  Context when the same data is read in 3+ unrelated subtrees, or when
+  prop drilling exceeds 3 levels."
+-->
+
+## Server state
+
+{{SERVER_STATE}}
+
+<!--
+  - Is there a cache layer (react-query, SWR)? Or refetch-on-mount?
+  - How is invalidation handled after mutations?
+-->
+
+## Persistent state
+
+{{PERSISTENT}}
+
+<!--
+  What goes in localStorage / sessionStorage / cookies. Naming conventions.
+  What MUST NOT (e.g. tokens stay in httpOnly cookies).
+-->
+
+## Common pitfalls
+
+{{PITFALLS}}
+
+<!--
+  - Putting expensive computations directly in render — wrap with useMemo only
+    when actually expensive.
+  - Updating Context too often → re-renders everything underneath.
+  - Storing derived state instead of deriving on render.
+-->

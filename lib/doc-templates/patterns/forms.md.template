@@ -1,0 +1,66 @@
+<!-- claudebook: generated {{DATE}}, depth={{DEPTH}} -->
+# Forms
+
+Form-handling conventions. **Specialize from one or two real forms** in the codebase.
+
+## Library / approach
+
+{{APPROACH}}
+
+<!--
+  e.g. "Controlled components with useState. No form library. Validation runs
+  on submit (not on change). For complex forms (>10 fields), see <example>."
+  OR
+  "react-hook-form + zod. See <example.tsx> for the canonical setup."
+-->
+
+## State shape
+
+{{STATE_SHAPE}}
+
+<!--
+  How form state is structured (one object vs separate useState calls vs ref).
+  When to lift state up.
+-->
+
+## Validation
+
+{{VALIDATION}}
+
+<!--
+  - Where validation rules live (per-field, schema, custom hook?)
+  - Required vs optional patterns
+  - Error display (inline under field? top of form? toast?)
+  - When to validate (on submit, on blur, on change)
+-->
+
+## Submission
+
+{{SUBMISSION}}
+
+<!--
+  - Disabled state during submit
+  - Spinner placement
+  - Success behavior (toast + close modal? redirect? reset form?)
+  - Error behavior (keep form open + show error? auto-retry?)
+-->
+
+## Custom inputs
+
+{{CUSTOM_INPUTS}}
+
+<!--
+  Reference custom input components in this project (DatePicker, MultiSelect,
+  Toggle, FileUpload, etc.) and how they integrate with form state.
+-->
+
+## Common pitfalls
+
+{{PITFALLS}}
+
+<!--
+  - Uncontrolled → controlled warnings (initial undefined → string).
+  - Submitting on Enter inside textarea (handle key=Enter && !shiftKey if needed).
+  - Not disabling submit during in-flight request → double-submits.
+  - Resetting form on success — easy to forget.
+-->

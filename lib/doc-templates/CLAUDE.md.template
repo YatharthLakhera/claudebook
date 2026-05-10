@@ -1,0 +1,81 @@
+<!-- claudebook: generated {{DATE}}, depth={{DEPTH}} -->
+# CLAUDE.md
+
+> Router file. Always loaded into Claude's context. Keep ≤200 lines.
+> Detailed docs live in `.claude/docs/` and are loaded only when relevant.
+
+## Project
+
+**{{PROJECT_NAME}}** — {{ONE_LINE_DESCRIPTION}}
+
+## Stack
+
+{{STACK_SNAPSHOT}}
+
+<!--
+  Example:
+  - Language: TypeScript 5.x
+  - Framework: React 18.3 (SPA via Vite)
+  - Styling: TailwindCSS 3.4
+  - Routing: react-router-dom 6
+  - HTTP: axios (centralized in src/utils/api.ts)
+  - State: React Context (no Redux)
+-->
+
+## Commands
+
+| What | Command |
+|---|---|
+{{COMMAND_TABLE}}
+
+<!--
+  Pulled from package.json scripts (or stack equivalent).
+  Include only what's actually run day-to-day.
+-->
+
+## Critical rules
+
+{{CRITICAL_RULES}}
+
+<!--
+  5–10 must-follow rules from .claude/docs/conventions.md.
+  Each one line. The full set with rationale lives in conventions.md.
+-->
+
+## Before writing ANY code
+
+1. Check the relevant inventory to avoid recreating existing code:
+   - Components → `.claude/docs/inventories/component-map.md`
+   - Utilities → `.claude/docs/inventories/utility-map.md`
+{{ADDITIONAL_INVENTORY_LINKS}}
+2. Match the task below and load the matching pattern/topic doc.
+
+## Task → Doc routing
+
+| If the task involves... | Load |
+|---|---|
+{{ROUTING_TABLE}}
+
+<!--
+  Only include rows for docs that were actually generated.
+  Examples (drop the ones not generated):
+  | API calls / endpoints / HTTP errors | .claude/docs/patterns/api-integration.md |
+  | Modal / popup / dialog              | .claude/docs/patterns/modals.md           |
+  | Form / validation / submission      | .claude/docs/patterns/forms.md            |
+  | Table / list / pagination           | .claude/docs/patterns/tables.md           |
+  | Styling / theme / colors            | .claude/docs/patterns/styling.md          |
+  | Context / store / global state      | .claude/docs/patterns/state-management.md |
+  | New route / navigation              | .claude/docs/patterns/routing.md          |
+  | Architecture decisions / module map | .claude/docs/architecture.md              |
+  | Stack-specific best practice check  | .claude/docs/best-practices.md            |
+  | Naming / file org / tooling rules   | .claude/docs/conventions.md               |
+  | Project purpose / business context  | .claude/docs/overview.md                  |
+-->
+
+## Maintenance
+
+This documentation is generated and maintained by the [`claudebook`](https://github.com/) plugin.
+
+- Run `/claudebook:revise` after merging significant changes.
+- Last write: {{DATE}}
+- Last commit covered: {{COMMIT_SHA}}

@@ -1,0 +1,68 @@
+<!-- claudebook: generated {{DATE}}, depth={{DEPTH}} -->
+# Routing
+
+How URLs map to UI. **Specialize to the actual router** in use.
+
+For the full path → component table, see `inventories/route-map.md`.
+
+## Router
+
+{{ROUTER}}
+
+<!--
+  e.g. "react-router-dom v6. Routes declared in src/App.tsx via <Routes><Route />.
+  No file-based routing."
+  OR
+  "Next.js app router. Routes are folders under src/app/."
+-->
+
+## Adding a new route
+
+{{ADD_ROUTE}}
+
+<!--
+  Step-by-step. Example for react-router-dom:
+  1. Create the page component at src/pages/<Name>.tsx
+  2. Add a <Route path=... element={<Name />} /> in src/App.tsx
+  3. If auth-required, wrap in <ProtectedRoute>
+  4. Add nav link in src/components/common/Sidebar.tsx if user-visible
+  5. Update inventories/route-map.md (revise will catch this — but better to do it manually for new routes)
+-->
+
+## Auth guards
+
+{{AUTH_GUARDS}}
+
+<!--
+  Where the auth-required wrapper / middleware lives. How redirects work
+  (login → original URL preserved as ?next=).
+-->
+
+## Layouts
+
+{{LAYOUTS}}
+
+<!--
+  Nested layouts (sidebar + main, header + footer, etc.).
+  Where each layout component lives.
+-->
+
+## Navigation patterns
+
+{{NAV}}
+
+<!--
+  - Programmatic nav: useNavigate / router.push
+  - Link: <Link to=...> or <NavLink> for active styling
+  - Query params: useSearchParams (don't store ephemeral UI state in URL unless deep-linkable)
+-->
+
+## Common pitfalls
+
+{{PITFALLS}}
+
+<!--
+  - Forgetting to wrap a new route in the auth guard.
+  - Hardcoded URLs scattered across the codebase — prefer a `routes` constants module.
+  - Losing scroll position between routes (ScrollRestoration component).
+-->

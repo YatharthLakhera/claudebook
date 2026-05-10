@@ -1,0 +1,68 @@
+<!-- claudebook: generated {{DATE}}, depth={{DEPTH}} -->
+# API Integration
+
+How to make HTTP calls in this project. **Specialize this doc** to the project's actual conventions during write — read `{{HTTP_CLIENT_FILE}}` and base the rules on what's there.
+
+## The single client
+
+{{CLIENT_DESCRIPTION}}
+
+<!--
+  Describe the centralized client. Example:
+
+  All HTTP requests use the axios instance exported from `src/utils/api.ts`.
+  Never construct another axios instance. Never use `fetch()` directly.
+
+  The instance handles:
+  - `userId` header (from localStorage)
+  - `countryCode` header (from localStorage)
+  - Auth cookies (withCredentials: true)
+  - Error interceptor: 401 → redirect to /login; 5xx → toast + throw
+-->
+
+## Calling an endpoint
+
+{{CALL_EXAMPLE}}
+
+<!--
+  Show one or two real call patterns from this project's code, not generic.
+
+  ```ts
+  import { api } from '@/utils/api';
+
+  export async function getInventory(filter: InventoryFilter) {
+    const res = await api.get<InventoryResponse>('/inventory', { params: filter });
+    return res.data.items;
+  }
+  ```
+-->
+
+## Error handling
+
+{{ERROR_HANDLING}}
+
+<!--
+  - What the interceptor handles globally
+  - When to add try/catch in callers (only for recoverable errors)
+  - How to surface errors to the user (toast vs inline vs throw)
+-->
+
+## Typing requests / responses
+
+{{TYPING}}
+
+<!--
+  Where request/response types live (colocated with service vs in src/types/),
+  naming convention, how to handle pagination wrappers.
+-->
+
+## Common pitfalls
+
+{{PITFALLS}}
+
+<!--
+  - Don't forget `await`.
+  - Don't double-handle errors that the interceptor already catches.
+  - Don't store API responses in localStorage — they go stale.
+  - Other gotchas observed in this project's code.
+-->

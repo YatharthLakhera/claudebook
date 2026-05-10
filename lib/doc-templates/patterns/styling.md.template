@@ -1,0 +1,89 @@
+<!-- claudebook: generated {{DATE}}, depth={{DEPTH}} -->
+# Styling
+
+How to style things in this project. **Specialize to the actual design system** in use.
+
+## Approach
+
+{{APPROACH}}
+
+<!--
+  e.g. "TailwindCSS only. No custom CSS files. No inline style= unless
+  values are dynamic (e.g. transform percentage)."
+-->
+
+## Theme palette
+
+{{PALETTE}}
+
+<!--
+  Colors. Pull from tailwind.config.* or CSS variables. Example:
+
+  - Backgrounds: bg-gray-900 (page), bg-gray-800 (cards), bg-gray-700 (inputs)
+  - Text: text-white (primary), text-gray-300 (secondary), text-gray-400 (muted)
+  - Borders: border-gray-700 (default), border-gray-600 (hover/focus)
+  - Accents:
+      - Primary: blue-500 / blue-600 (hover)
+      - Success: green-500 / green-600
+      - Warning: orange-500 / orange-600
+      - Danger:  red-500 / red-600
+-->
+
+## Typography
+
+{{TYPOGRAPHY}}
+
+<!--
+  - Font family (system stack? custom?)
+  - Heading sizes (text-3xl/2xl/xl/lg)
+  - Body sizes (text-base/sm)
+  - Line height (leading-tight/normal/relaxed) per use case
+-->
+
+## Spacing
+
+{{SPACING}}
+
+<!--
+  - Section padding (p-6 / p-8)
+  - Card padding (p-4 / p-5)
+  - Gap between cards (gap-4 / gap-6)
+  - Form field spacing (space-y-4)
+-->
+
+## Buttons / inputs / cards
+
+{{COMPONENTS}}
+
+<!--
+  Reference the canonical button/input/card classes (or component:
+  src/components/common/Button.tsx) and their variants.
+-->
+
+## Icons
+
+{{ICONS}}
+
+<!--
+  e.g. "lucide-react only. Standard size: 16px (w-4 h-4) inline, 20px (w-5 h-5)
+  on buttons, 24px (w-6 h-6) for headers. Do not introduce other icon libs."
+-->
+
+## Responsive breakpoints
+
+{{BREAKPOINTS}}
+
+<!--
+  Default Tailwind breakpoints unless customized. Mobile-first or desktop-first?
+  Common patterns (e.g. `flex-col md:flex-row`).
+-->
+
+## Common pitfalls
+
+{{PITFALLS}}
+
+<!--
+  - Hardcoded color hex values — must come from the palette.
+  - Mixing space-y-* and gap-* on the same container.
+  - parent-with-overflow-hidden clipping popovers (see modals.md).
+-->

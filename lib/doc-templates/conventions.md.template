@@ -1,0 +1,81 @@
+<!-- claudebook: generated {{DATE}}, depth={{DEPTH}} -->
+# Conventions
+
+Project-specific rules. The "why" matters when judging edge cases — the rationale stays here, not in CLAUDE.md.
+
+## File organization
+
+{{FILE_ORG}}
+
+<!--
+  Where each kind of code goes. e.g.:
+  - Reusable UI (used in 3+ places) → src/components/common/
+  - Feature components → src/components/<feature>/
+  - Pages (route entry points) → src/pages/
+  - Pure helpers → src/utils/
+  - React hooks → src/hooks/
+  - Business logic with no UI → src/services/
+  - Shared types → src/types/
+-->
+
+## Naming
+
+{{NAMING}}
+
+<!--
+  - Components: PascalCase, one per file, file name = component name
+  - Hooks: useCamelCase
+  - Utils: camelCase
+  - Types/interfaces: PascalCase, no `I` prefix
+  - Test files: <Name>.test.tsx (colocated)
+  - CSS classes: not applicable (Tailwind only)
+-->
+
+## Critical rules
+
+{{CRITICAL_RULES}}
+
+<!--
+  Each rule has: the rule, the reason, the consequence if broken.
+  Example:
+  ### All HTTP via src/utils/api.ts
+  Why: Auth headers (userId, countryCode) and error interceptor live there.
+  If broken: requests miss headers; user sees "401 unauthorized" or wrong-marketplace data.
+
+  ### Modals use createPortal to document.body
+  Why: Parent overflow-hidden clips popovers otherwise.
+  If broken: modal content gets clipped on dashboard pages; bug found in QA.
+-->
+
+## TypeScript / type rules
+
+{{TYPE_RULES}}
+
+<!--
+  - No `any`. Use `unknown` and narrow.
+  - Component props: explicit interface, named `<Component>Props`.
+  - Discriminated unions over optional flags.
+  - Export shared types from src/types/, not inline.
+-->
+
+## Tooling
+
+{{TOOLING}}
+
+<!--
+  - Lint: `npm run lint`. Fail on errors before commit.
+  - Type-check: `npm run type-check` before pushing.
+  - No pre-commit hooks today (note if added).
+-->
+
+## Known offenders
+
+{{KNOWN_OFFENDERS}}
+
+<!--
+  Files that violate the rules above (often size limits). Listed so future
+  changes here can be flagged for refactor without blocking session work.
+  Example:
+  - src/components/wholesale/CatalogUpload.tsx — 1779 lines (rule: ≤300)
+  - src/components/dashboard/Wholesale.tsx — 1414 lines
+-->

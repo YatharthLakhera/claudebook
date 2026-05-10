@@ -1,0 +1,63 @@
+<!-- claudebook: generated {{DATE}}, depth={{DEPTH}} -->
+# Modals / Popups
+
+How to build modals in this project. **Specialize from one or two real examples** in the codebase.
+
+## Mount target
+
+{{MOUNT}}
+
+<!--
+  e.g. "Always render via `createPortal(node, document.body)`. Reason: parent
+  `overflow-hidden` clips otherwise. See ConfirmModal for the canonical pattern."
+-->
+
+## Canonical example
+
+{{EXAMPLE}}
+
+<!--
+  Reference one real component as the example to copy from. Cite the file path.
+  Example:
+
+  Reference: `src/components/common/ConfirmModal.tsx`. Copy its skeleton —
+  backdrop, click-outside-to-close, ESC handler, body-scroll lock.
+-->
+
+## Backdrop and styling
+
+{{BACKDROP}}
+
+<!--
+  Backdrop class, z-index range, animation if any.
+-->
+
+## Close behavior
+
+{{CLOSE}}
+
+<!--
+  - Click backdrop closes (yes/no)
+  - ESC closes (yes/no)
+  - Close button position
+  - Confirm-on-dirty-form? (link to forms.md if applicable)
+-->
+
+## Loading and error states
+
+{{STATES}}
+
+<!--
+  How modals show loading (full overlay vs button spinner) and errors
+  (inline alert vs toast).
+-->
+
+## Common pitfalls
+
+{{PITFALLS}}
+
+<!--
+  - Forgetting createPortal → clipping bugs in dashboards.
+  - Stacking modals — the project's policy (avoid? layered z-index? other?).
+  - Body scroll leak — make sure useEffect restores overflow on unmount.
+-->

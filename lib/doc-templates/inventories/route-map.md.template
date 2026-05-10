@@ -1,0 +1,30 @@
+<!-- claudebook: generated {{DATE}}, depth={{DEPTH}} -->
+# Route Map
+
+URL → page/handler map. For frontend file-based routers, this is generated from the routes/pages directory; for code-based routers (e.g. react-router-dom), from the router config; for backends, from route registration files.
+
+{{ROUTE_TABLE}}
+
+<!--
+  Table format:
+
+  | Path                   | Method | Component / handler                     | Auth |
+  |------------------------|--------|-----------------------------------------|------|
+  | /                      | GET    | pages/Landing.tsx                       | no   |
+  | /login                 | GET    | pages/Login.tsx                         | no   |
+  | /dashboard             | GET    | pages/Dashboard.tsx                     | yes  |
+  | /dashboard/inventory   | GET    | components/dashboard/Inventory.tsx      | yes  |
+  | /onboarding/survey     | GET    | pages/OnboardingSurvey.tsx              | yes  |
+
+  For backends, columns are: Path, Method, Handler, Auth.
+-->
+
+## Navigation patterns
+
+{{NAV_PATTERNS}}
+
+<!--
+  - How to add a new route (which file to edit, which component to colocate)
+  - Where the auth guard lives
+  - How nested layouts work (if any)
+-->

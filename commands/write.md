@@ -1,0 +1,205 @@
+---
+description: Bootstrap the full claudebook documentation system for a new project — detects stack, scans source, prompts for depth, generates docs, finalizes CLAUDE.md as router.
+---
+
+# /claudebook:write
+
+You are bootstrapping the claudebook documentation system in the user's current project. The goal is a layered, AI-friendly doc set so future Claude sessions load only what's relevant to the task and reuse existing components instead of recreating them.
+
+Read these plugin files before doing anything project-side:
+- `lib/stack-detection.md` — how to identify the stack
+- `lib/routing-rules.md` — file→doc mapping (used later by revise; informs structure now)
+- `lib/best-practices-spec.md` — the three depth options
+- All templates under `lib/doc-templates/` — generic scaffolds you will specialize
+
+Resolve those plugin file paths from your plugin install location. If you cannot find them, ask the user where the plugin lives.
+
+## Hard rules
+
+1. **Never overwrite existing user content silently.** If `CLAUDE.md`, `AGENTS.md`, `.claude/docs/` already exist, stop and route to `/claudebook:revise` — unless the user explicitly says "regenerate from scratch."
+2. **Templates are scaffolds, not final files.** The on-disk copy in the project must be **specialized to observed conventions** (read the actual code), not pasted verbatim.
+3. **Inventories are per exported symbol**, grouped by file. One entry = name, path, signature/props, purpose, callers if obvious.
+4. **Skip pattern docs that don't apply.** No forms in the project → no `forms.md`. The skill produces only what the codebase needs.
+5. **Mark generated, ask when unsure.** Every generated doc gets a `<!-- claudebook: generated YYYY-MM-DD, depth=<chosen> -->` HTML comment at the top so revise can identify them.
+6. **No emojis.** No marketing prose. Terse, scannable, dense with paths and names.
+
+## Workflow
+
+### Step 1 — Pre-flight
+
+1. Confirm cwd is the project root (look for the manifest file — `package.json`, `pyproject.toml`, etc.).
+2. Run `git rev-parse --show-toplevel` and `git rev-parse HEAD`. If not a git repo, warn the user — `/claudebook:revise` won't be able to track changes. Ask whether to proceed anyway.
+3. Check for `CLAUDE.md`, `AGENTS.md`, `.claude/docs/`. If any exist:
+   - If they look claudebook-generated (have the marker comment), suggest `/claudebook:revise` and stop.
+   - If user-authored, preserve their content as **input** — extract any project-specific rules and feed them into the new `conventions.md`. Confirm with the user before overwriting.
+4. Note the absolute path of the project root. All subsequent writes go under it.
+
+### Step 2 — Detect stack
+
+Follow `lib/stack-detection.md`. Output the classification table to the user.
+
+### Step 3 — Scan source tree
+
+Build a structural picture, not a full read. For each:
+- Top-level folders under `src/` (or stack-equivalent)
+- Counts: components, utils, hooks, services, routes, types
+- Presence checks: any `*Modal*`/`*Popup*`/`*Dialog*`? any forms (`react-hook-form`/`formik`/native form components)? any tables? any contexts/stores?
+- Existing `tailwind.config.*` / theme tokens
+- Largest 5 files (paths + line counts) — these often violate convention rules and are worth flagging in `conventions.md` as known offenders
+
+Keep this in your working memory; do not write anything yet.
+
+### Step 4 — Decide which docs to generate
+
+Inventories — always generate ones that have content:
+
+| Doc | Generate if |
+|---|---|
+| `component-map.md` | ≥1 component file found |
+| `utility-map.md` | ≥1 file in `utils/` / `lib/` / equivalent |
+| `hook-map.md` | ≥1 file in `hooks/` (React) or `composables/` (Vue) |
+| `service-map.md` | ≥1 file in `services/` / `api/` |
+| `route-map.md` | route directory exists |
+| `type-map.md` | ≥1 file in `types/` or shared `*.d.ts` |
+
+Pattern docs — generate only if the codebase actually uses the pattern:
+
+| Doc | Generate if |
+|---|---|
+| `api-integration.md` | HTTP client present (axios/fetch wrapper/etc.) |
+| `modals.md` | ≥1 modal/popup/dialog component |
+| `forms.md` | ≥1 non-trivial form OR a form library dep |
+| `tables.md` | ≥1 table component |
+| `styling.md` | Always |
+| `state-management.md` | Always |
+| `routing.md` | Routing solution present |
+
+Project docs — always: `overview.md`, `architecture.md`, `tech-stack.md`, `conventions.md`, `best-practices.md`.
+
+### Step 5 — Confirm with user (AskUserQuestion)
+
+Ask in **one batched** AskUserQuestion call (multiple questions in a single tool call):
+
+1. **Stack confirmation** — show the detected stack table; options: "Looks right" / "Adjust" (if adjust, follow up).
+2. **Best-practices depth** — Essentials (recommended) / Standard / Comprehensive. Use the descriptions from `lib/best-practices-spec.md`.
+3. **Pattern docs to skip** — show the auto-included list with checkboxes; user can deselect any (multiSelect).
+4. **Existing CLAUDE.md / AGENTS.md** — only ask if step 1 found user-authored versions. Options: "Migrate content into new docs" (recommended) / "Discard" / "Abort and review manually".
+
+Wait for answers before proceeding.
+
+### Step 6 — Generate docs in dependency order
+
+Each section below describes what to write into `<project>/.claude/docs/<filename>`. Use `Write`, not `Edit` (these are new files). The tone for every doc: terse, factual, scannable. Bullet points and tables over prose.
+
+**Always include the marker comment at the top:**
+```html
+<!-- claudebook: generated YYYY-MM-DD, depth=<essentials|standard|comprehensive> -->
+```
+
+#### 6a. Project context
+
+- **`overview.md`** — Project purpose (1 paragraph from README + manifest metadata + user input if clearly missing). What it does, who uses it, key flows. No marketing. If the README is empty (≤30 chars), surface this and ask the user for a 2-3 sentence summary.
+- **`architecture.md`** — Top-level module map: `src/<folder> → role`. Data flow at a high level (e.g. "Auth context → axios interceptor → backend"). State management approach. Where business logic lives vs UI vs networking. ~50 lines.
+- **`tech-stack.md`** — Use the classification table from Step 2. Add: notable version pins, why a choice constrains code (e.g. "axios is required for shared interceptors — do not use fetch directly"). ~40 lines.
+
+#### 6b. Conventions
+
+Extract from: existing `AGENTS.md` / `CLAUDE.md` content (if any), `eslint.config.*`, `tsconfig.json`, observed patterns in code. Sections:
+- **File organization** (where things go)
+- **Naming** (case rules per file/symbol type)
+- **Critical rules** (must-follow, with consequences if broken)
+- **Known offenders** (files exceeding self-imposed rules — flag for refactor without breaking session work)
+
+#### 6c. Pattern docs (specialized)
+
+For each pattern doc to generate:
+1. Read the relevant template under `lib/doc-templates/patterns/`.
+2. Read 2–3 representative examples from the project's source.
+3. Specialize: rewrite the template so the examples in the doc are from this project, the rules reflect what the code actually does, and the "common pitfalls" section is informed by what you saw.
+
+Each pattern doc should be ≤100 lines. If a pattern is huge, link to the most exemplary file as the canonical reference rather than restating it.
+
+#### 6d. Inventories
+
+For each inventory to generate:
+1. List source files in scope (per the path table above).
+2. For each file, identify exported symbols. Use `grep` / file reads judiciously — full reads only when the export shape isn't obvious.
+3. For each exported symbol, write one entry:
+
+```markdown
+### <SymbolName>
+- Path: <relative path>
+- Kind: <component | hook | util | service | type | route>
+- Purpose: <one line>
+- Signature: <props/args/return — abbreviated>
+- Used by: <2–3 callers if quick to find, else "—">
+```
+
+Group entries by feature subfolder. If a project has 100+ symbols of one kind, split into per-feature inventory files (`component-map-<feature>.md`) and link from the top-level map.
+
+**Do not invent.** If you can't determine purpose from the file, write `Purpose: TBD — read <path>:<line>` and move on. The user can fill in or we'll catch it during revise.
+
+#### 6e. Best practices
+
+Follow `lib/best-practices-spec.md` strictly for the chosen depth. Single combined file. Per-stack sections if multiple stacks detected.
+
+#### 6f. CLAUDE.md (router) — last
+
+Use `lib/doc-templates/CLAUDE.md.template`. Fill in:
+- Project name + one-line description
+- Stack snapshot (from Step 2)
+- Commands (extract from `package.json` scripts / equivalent)
+- Critical rules (5–10 from `conventions.md`)
+- Task → doc routing table (only entries for docs that were generated)
+- "Always before writing code" reminder pointing to inventories
+
+Keep CLAUDE.md ≤200 lines. If it's longer, the routing table is too verbose — collapse rare entries.
+
+#### 6g. CLAUDEBOOK.md (meta)
+
+Use `lib/doc-templates/CLAUDEBOOK.md.template`. Record:
+- Skill version (read from `.claude-plugin/plugin.json`)
+- Date of write
+- Stack detected
+- Depth chosen
+- Last commit covered: current `HEAD` SHA
+- Doc index: every file generated with line count
+
+### Step 7 — AGENTS.md
+
+If the project had an `AGENTS.md`, replace its contents with exactly:
+
+```markdown
+# AGENTS
+
+See `CLAUDE.md`.
+```
+
+If it didn't, do not create one — the convention is CLAUDE.md is canonical.
+
+### Step 8 — Final summary
+
+Print to the user:
+- Files written (count + paths)
+- Stack detected
+- Pattern docs included / skipped (with reasons)
+- Total inventory entries (per kind)
+- Last commit SHA recorded
+- One sentence on next steps: "Run `/claudebook:revise` after merging significant changes."
+
+Mark all tasks completed.
+
+## Failure handling
+
+- If a tool fails or output looks wrong, stop and report — do not write partial docs that look authoritative.
+- If you can't classify a file confidently for an inventory, mark `Purpose: TBD` and continue. Don't block the whole run on one file.
+- If the user denies a tool call, ask why and adjust — don't retry the identical call.
+
+## What NOT to do
+
+- Don't generate docs for sections that don't apply (e.g. `forms.md` when there are no forms).
+- Don't paste template content verbatim into project docs.
+- Don't invent symbols, props, or callers.
+- Don't add emojis or decorative formatting.
+- Don't write a "summary" or "conclusion" section in any generated doc.
+- Don't add comments explaining what a doc is for — the doc itself should be self-evident.

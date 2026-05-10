@@ -1,0 +1,32 @@
+<!-- claudebook: generated {{DATE}}, depth={{DEPTH}} -->
+# Type Map
+
+Shared types and interfaces in `src/types/` (or top-level `*.d.ts`). Before defining a new type, search here.
+
+{{TYPES_BY_FILE}}
+
+<!--
+  One section per file. Format:
+
+  ## src/types/user.ts
+  ### User
+  - Kind: interface
+  - Shape: { id: string; email: string; name: string; countryCode: string; ... }
+  - Used by: AuthContext, services/auth, components/auth/*
+
+  ### UserRole
+  - Kind: type alias (discriminated union)
+  - Shape: 'admin' | 'seller' | 'viewer'
+
+  ## src/types/catalog.ts
+  ### CatalogItem
+  - Kind: interface
+  - Shape: { asin: string; title: string; price: number; ... }
+  - Used by: services/catalog, components/wholesale/*
+-->
+
+## Conventions
+
+- All shared types live here, not inline in components.
+- No `I` prefix on interfaces.
+- API response types: see `services/*` files (kept colocated with the service).

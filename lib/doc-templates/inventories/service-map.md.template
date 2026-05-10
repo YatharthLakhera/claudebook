@@ -1,0 +1,27 @@
+<!-- claudebook: generated {{DATE}}, depth={{DEPTH}} -->
+# Service Map
+
+Business-logic modules in `src/services/` (or `src/api/`). These wrap API calls and domain operations — UI components should call services, not `api` directly when the operation is non-trivial.
+
+{{SERVICES_BY_FILE}}
+
+<!--
+  One section per service file. Format:
+
+  ## src/services/catalog.ts
+  ### uploadCatalog
+  - Purpose: Upload xlsx, kick off batch analysis, poll for results.
+  - Signature: (file: File, options?: UploadOptions) => Promise<JobId>
+  - Calls: POST /catalog/upload, GET /catalog/jobs/:id (polls)
+
+  ### getCatalogResults
+  - Purpose: Fetch completed analysis results.
+  - Signature: (jobId: JobId) => Promise<CatalogResult[]>
+  - Calls: GET /catalog/jobs/:id/results
+
+  ## src/services/auth.ts
+  ### login
+  - Purpose: Email/password login; sets cookie via backend response.
+  - Signature: (email: string, password: string) => Promise<User>
+  - Calls: POST /auth/login
+-->

@@ -1,0 +1,65 @@
+<!-- claudebook: generated {{DATE}}, depth={{DEPTH}} -->
+# Architecture
+
+## Module map
+
+```
+{{TREE}}
+```
+
+<!--
+  Top-level src/ tree, two levels deep, with one-line role for each folder.
+  Example:
+  src/
+  ├── components/
+  │   ├── common/        Reusable UI primitives (used in 3+ places)
+  │   ├── dashboard/     Dashboard feature
+  │   └── ...
+  ├── contexts/          React context providers (Auth, Marketplace, ...)
+  ├── hooks/             Custom React hooks
+  ├── pages/             Route-level components (one per top URL)
+  ├── services/          Business logic, no UI
+  ├── utils/             Pure helpers, including api.ts
+  └── types/             Shared TypeScript types
+-->
+
+## Data flow
+
+{{DATA_FLOW}}
+
+<!--
+  How data moves through the app. Short prose with arrows.
+  Example:
+  - User → Pages → Components → hooks/services → utils/api.ts (axios) → backend
+  - Auth tokens: cookie set by backend; userId/countryCode added as headers in axios interceptor
+  - Errors: toast via react-toastify; surfaced from interceptor for 4xx/5xx
+-->
+
+## State management
+
+{{STATE_MGMT}}
+
+<!--
+  - Where global state lives (Context, store, server cache, etc.)
+  - Where local state is OK
+  - What is NEVER stored where (e.g. "tokens never in localStorage")
+-->
+
+## External integrations
+
+{{INTEGRATIONS}}
+
+<!--
+  Third-party services this code talks to. One line each:
+  service — purpose — auth method — file(s) that own the integration.
+-->
+
+## Build / deploy
+
+{{BUILD_DEPLOY}}
+
+<!--
+  - Dev server, build command, output dir
+  - Deploy target (Amplify, Vercel, custom, ...)
+  - Env vars required (names only — values via secrets)
+-->
