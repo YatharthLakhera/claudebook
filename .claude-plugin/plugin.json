@@ -1,8 +1,11 @@
 {
   "name": "claudebook",
+  "description": "Layered, AI-friendly project documentation for Claude Code. Two slash commands — /claudebook:write and /claudebook:revise — that generate and incrementally maintain a CLAUDE.md router plus topic docs, inventories, and pattern guides under .claude/docs/, so Claude loads only what's relevant to the current task and reuses existing components instead of recreating them.",
   "version": "0.1.0",
-  "description": "Generate and maintain a layered, AI-friendly documentation system (CLAUDE.md router + .claude/docs/) so Claude loads only the docs relevant to the current task and reuses existing components instead of recreating them.",
-  "author": "Yatharth Lakhera",
+  "author": {
+    "name": "Yatharth Lakhera"
+  },
+  "homepage": "https://github.com/YatharthLakhera/claudebook",
   "commands": [
     {
       "name": "write",

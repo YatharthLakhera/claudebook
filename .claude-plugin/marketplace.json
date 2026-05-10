@@ -1,0 +1,18 @@
+{
+  "name": "claudebook",
+  "description": "Layered, AI-friendly project documentation for Claude Code — bootstrap and maintain CLAUDE.md and .claude/docs/.",
+  "owner": {
+    "name": "Yatharth Lakhera"
+  },
+  "plugins": [
+    {
+      "name": "claudebook",
+      "description": "Two slash commands — /claudebook:write and /claudebook:revise — that generate and incrementally maintain a layered documentation system (CLAUDE.md router + .claude/docs/) so Claude loads only the docs relevant to the current task and reuses existing components instead of recreating them.",
+      "source": "./",
+      "category": "productivity",
+      "tags": ["documentation", "claude-md", "context", "productivity"],
+      "homepage": "https://github.com/YatharthLakhera/claudebook",
+      "license": "MIT"
+    }
+  ]
+}
