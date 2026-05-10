@@ -5,15 +5,5 @@
   "author": {
     "name": "Yatharth Lakhera"
   },
-  "homepage": "https://github.com/YatharthLakhera/claudebook",
-  "commands": [
-    {
-      "name": "write",
-      "description": "Bootstrap the full claudebook documentation system for a new project."
-    },
-    {
-      "name": "revise",
-      "description": "Incrementally update claudebook docs based on git changes since the last write/revise."
-    }
-  ]
+  "homepage": "https://github.com/YatharthLakhera/claudebook"
 }
