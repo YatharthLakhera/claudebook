@@ -41,13 +41,21 @@ Follow `lib/stack-detection.md`. Output the classification table to the user.
 ### Step 3 — Scan source tree
 
 Build a structural picture, not a full read. For each:
-- Top-level folders under `src/` (or stack-equivalent)
+- Top-level folders under `src/` **or whatever the project actually uses** (`libs/`, `app/`, `apis/`, root, etc. — do not assume `src/`)
 - Counts: components, utils, hooks, services, routes, types
 - Presence checks: any `*Modal*`/`*Popup*`/`*Dialog*`? any forms (`react-hook-form`/`formik`/native form components)? any tables? any contexts/stores?
 - Existing `tailwind.config.*` / theme tokens
 - Largest 5 files (paths + line counts) — these often violate convention rules and are worth flagging in `conventions.md` as known offenders
 
-Keep this in your working memory; do not write anything yet.
+**Capture convention paths.** As you scan, record the actual glob(s) for each kind of code in this project. These get written to `CLAUDEBOOK.md` "Convention paths" so `/claudebook:revise` can route `git diff` paths correctly without assuming `src/**`. Examples:
+
+- `src/`-style React: `components → src/components/**/*.{tsx,jsx}`, `utils → src/utils/**/*.{ts,js}`, etc.
+- Browser extension: `services → apis/**/*.js`, `utilities → libs/**/*.js`, `content scripts → content/**/*.js`.
+- Python: `services → app/services/**/*.py`, `routes → app/routers/**/*.py`.
+
+If a kind has no directory in this project, omit it (do not invent a path).
+
+Keep all of this in working memory; do not write anything yet.
 
 ### Step 4 — Decide which docs to generate
 
@@ -73,6 +81,7 @@ Pattern docs — generate only if the codebase actually uses the pattern:
 | `styling.md` | Always |
 | `state-management.md` | Always |
 | `routing.md` | Routing solution present |
+| `browser-extension.md` | `manifest.json` with `manifest_version` field detected (MV2/MV3 extension) |
 
 Project docs — always: `overview.md`, `architecture.md`, `tech-stack.md`, `conventions.md`, `best-practices.md`.
 
@@ -166,6 +175,7 @@ Use `lib/doc-templates/CLAUDEBOOK.md.template`. Record:
 - Depth chosen
 - Last commit covered: current `HEAD` SHA
 - Doc index: every file generated with line count
+- **Convention paths table** — populate from Step 3. One row per kind of code with the actual glob(s) used in this project. This is what `/claudebook:revise` reads to route `git diff` paths to docs without assuming `src/**`.
 
 ### Step 7 — AGENTS.md
 

@@ -1,0 +1,132 @@
+<!-- claudebook: generated {{DATE}}, depth={{DEPTH}}, sha={{COMMIT_SHA_SHORT}} -->
+# Browser Extension
+
+How this project's MV2/MV3 browser extension is wired. **Specialize this doc** to the project's actual `manifest.json` and entry points — read the manifest end-to-end before writing.
+
+## Manifest snapshot
+
+{{MANIFEST_SUMMARY}}
+
+<!--
+  Surface the high-level shape from manifest.json. Example:
+
+  - manifest_version: 3
+  - name: "Acme Helper", version: "1.4.2"
+  - permissions: storage, activeTab, scripting
+  - host_permissions: https://*.acme.com/*, https://api.acme.com/*
+  - background.service_worker: background.js
+  - content_scripts:
+    - matches: https://*.acme.com/*  →  content/page.js (run_at: document_idle)
+  - action.default_popup: popup/popup.html
+  - options_ui.page: options/options.html
+  - web_accessible_resources: assets/* (matches: https://*.acme.com/*)
+
+  If MV2: note background.scripts / background.page instead of service_worker.
+-->
+
+## Entry points and where they live
+
+{{ENTRY_POINTS}}
+
+<!--
+  One row per manifest entry, with the file path. Example:
+
+  | Entry              | File                       | Notes |
+  |--------------------|----------------------------|-------|
+  | Service worker     | background.js              | MV3 — no DOM, no persistent state across restarts |
+  | Content script     | content/page.js            | Injected into matched pages, sandboxed from page JS |
+  | Popup              | popup/popup.html + popup.js | Toolbar click UI |
+  | Options page       | options/options.html       | Configurable from chrome://extensions |
+  | Web-accessible JS  | assets/inject.js           | Loaded by page via chrome.runtime.getURL(...) |
+
+  These are the *only* files browsers load directly. Everything else is imported from one of these.
+-->
+
+## Boundaries (the most common source of bugs)
+
+{{BOUNDARIES}}
+
+<!--
+  Spell out what runs where, what each context CAN'T see, and how they communicate.
+  Example:
+
+  - **Service worker (background.js)**: no DOM, no `window`, no persistent globals.
+    Restarts on idle. Use `chrome.storage` for state, not module-level variables.
+  - **Content script (content/page.js)**: has DOM access to the page, but its
+    JavaScript heap is **isolated** from the page's heap. Cannot read `window.foo`
+    set by the page. To bridge, inject a web-accessible script via DOM `<script>`
+    tag and message via `window.postMessage`.
+  - **Popup**: a fresh document each time it opens; no shared state with previous
+    opens. Use `chrome.storage` or message the service worker.
+  - **Page world (when needed)**: assets/inject.js runs in the page's heap. Use
+    only when content-script isolation is the problem.
+
+  Cross-context messaging:
+    chrome.runtime.sendMessage / onMessage — popup ↔ service worker, content ↔ service worker.
+    chrome.tabs.sendMessage — service worker → content script in a specific tab.
+    window.postMessage — content script ↔ injected page-world script (same DOM).
+-->
+
+## Permissions and host_permissions
+
+{{PERMISSIONS}}
+
+<!--
+  Per-permission justification. Example:
+
+  - `storage` — local + sync settings (options page).
+  - `activeTab` — so popup can act on the current tab without a broad host permission.
+  - `scripting` — to inject content scripts on demand from the popup.
+  - `host_permissions: https://*.acme.com/*` — content script auto-injection;
+    REMOVE if scope ever narrows.
+
+  Avoid broad permissions (`<all_urls>`, `tabs`) unless justified — the Chrome
+  Web Store flags them.
+-->
+
+## web_accessible_resources / dynamic imports
+
+{{WAR}}
+
+<!--
+  Files reachable from page JS via chrome.runtime.getURL(...). Document any
+  dynamic imports done from content scripts, e.g.:
+
+    const url = chrome.runtime.getURL('lib/parser.js');
+    const mod = await import(url);
+
+  - List which resources are exposed and to which match patterns.
+  - Note the CSP implications: MV3 disallows remote scripts; everything must ship
+    in the package.
+-->
+
+## Storage layout
+
+{{STORAGE}}
+
+<!--
+  Key → meaning, owner, TTL. Example:
+
+  | Key                     | Stored in           | Owner            | Notes |
+  |-------------------------|---------------------|------------------|-------|
+  | settings                | chrome.storage.sync | options page     | Cross-device sync |
+  | cache:<hash>            | chrome.storage.local | content script   | Manual eviction; no TTL |
+  | session:tabId:<n>       | chrome.storage.session | service worker | Cleared on browser close (MV3) |
+
+  Note that `chrome.storage` is async; localStorage is sync but isolated per origin.
+-->
+
+## Common pitfalls
+
+{{PITFALLS}}
+
+<!--
+  - Module-level state in the service worker disappears on restart. Persist anything
+    you need across firings.
+  - Content script and page JS do NOT share globals — page-world `window.X` is invisible.
+  - MV3 disallows remote-loaded JS; bundle everything.
+  - `chrome.runtime.sendMessage` returns a Promise (MV3); the callback form is MV2-only.
+  - host_permissions added later requires a re-grant flow on Chrome — surface this in
+    the options UI.
+  - Other gotchas observed in this project's code.
+-->

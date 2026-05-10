@@ -10,27 +10,47 @@
 
 ## Stack
 
+| Layer | Choice | Version |
+|---|---|---|
 {{STACK_SNAPSHOT}}
 
 <!--
-  Example:
-  - Language: TypeScript 5.x
-  - Framework: React 18.3 (SPA via Vite)
-  - Styling: TailwindCSS 3.4
-  - Routing: react-router-dom 6
-  - HTTP: axios (centralized in src/utils/api.ts)
-  - State: React Context (no Redux)
+  Render as the canonical 3-column table from `lib/stack-detection.md`. For the
+  router file, you may condense to the 4–6 rows most relevant to day-to-day code
+  (Language, Framework, Styling, HTTP, State, plus anything stack-defining). Full
+  table stays in `tech-stack.md`. Use `none configured` + `—` for unset categories.
+  Do not bullet-list this section — table only.
 -->
 
 ## Commands
 
-| What | Command |
-|---|---|
-{{COMMAND_TABLE}}
+{{COMMAND_TABLE_OR_FALLBACK}}
 
 <!--
-  Pulled from package.json scripts (or stack equivalent).
-  Include only what's actually run day-to-day.
+  Two valid renderings:
+
+  1. Project has a package manager / task runner. Render as a table:
+
+       | What | Command |
+       |---|---|
+       | Dev server     | `npm run dev`     |
+       | Build          | `npm run build`   |
+       | Lint           | `npm run lint`    |
+       | Type-check     | `npm run type-check` |
+
+     Pull from `package.json` scripts (or stack equivalent — Makefile, justfile,
+     pyproject [tool.poetry.scripts], etc.). Include only what's actually run day-to-day.
+
+  2. Project has NO package manager / no scripts (e.g. a browser extension loaded raw,
+     a static site, a single-script tool). Render literally:
+
+       This project has no package manager or script runner. Load directly via the
+       runtime — see `architecture.md` for build/deploy specifics.
+
+     Optionally add a 1-2 line "How to run" if there's a non-obvious manual step
+     (e.g. "Load unpacked from chrome://extensions, point at repo root").
+
+  Do not invent commands. If a script doesn't exist, do not list it.
 -->
 
 ## Critical rules

@@ -1,7 +1,15 @@
 <!-- claudebook: generated {{DATE}}, depth={{DEPTH}}, sha={{COMMIT_SHA_SHORT}} -->
 # Service Map
 
-Business-logic modules in `src/services/` (or `src/api/`). These wrap API calls and domain operations — UI components should call services, not `api` directly when the operation is non-trivial.
+Business-logic modules in `src/services/` (or stack-equivalent — see `CLAUDEBOOK.md` Convention paths). These wrap API calls and domain operations — UI components should call services, not `api` directly when the operation is non-trivial.
+
+## What lives here vs. `patterns/api-integration.md`
+
+This doc is a **directory** of service entries. Each entry has: name, path, signature, callers, and the endpoint(s) it touches. That's it.
+
+The **how** — retry behavior, auth header handling, error normalization, base URL resolution, token refresh, rate limiting — lives in `patterns/api-integration.md`. Cross-link rather than duplicate.
+
+If you find yourself describing *how* a service handles errors here, stop and move that prose to `api-integration.md`.
 
 {{SERVICES_BY_FILE}}
 

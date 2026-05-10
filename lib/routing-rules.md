@@ -4,29 +4,44 @@ Maps **changed file paths** (from `git diff`) to **docs that need updating**. Us
 
 The rules below are heuristics. When a file matches multiple rules, update all matched docs. When a file matches none, log it under "Unclassified" in the revise summary so the user can decide whether a new pattern doc is warranted.
 
+## Project-specific paths come first
+
+Before applying the generic table below, **read `CLAUDEBOOK.md`'s "Convention paths" section**. Those globs were captured at write time by scanning the actual project, and they win over the `src/**` defaults. Examples of projects where the defaults don't apply:
+
+- Browser extensions: code at root + `libs/` + `apis/` + `content/` (no `src/`).
+- Python projects: `app/`, `myapp/`, or package-named root.
+- Monorepos: `packages/<pkg>/src/**` per workspace.
+- Legacy projects: `js/`, `scripts/`, `assets/js/`.
+
+If `CLAUDEBOOK.md` has no Convention paths table (older write), fall back to the generic table below AND the loosened patterns. Surface this as a note in the revise summary so the user can re-run `/claudebook:write` (or hand-edit) to populate it.
+
 ## How to apply
 
-1. From `git diff <last-sha> HEAD --name-only`, classify each path.
-2. Build a set of docs to update (deduped).
-3. For each doc, read its current contents and apply only the deltas implied by the changes — do not regenerate from scratch unless the doc is materially out of date.
-4. After updating, bump `Last commit covered` in `CLAUDEBOOK.md` to current `HEAD`.
+1. Read Convention paths from `CLAUDEBOOK.md` if present.
+2. From `git diff <last-sha> HEAD --name-only`, classify each path against (a) Convention paths first, (b) the loosened generic table second.
+3. Build a set of docs to update (deduped).
+4. For each doc, read its current contents and apply only the deltas implied by the changes — do not regenerate from scratch unless the doc is materially out of date.
+5. After updating, bump `Last commit covered` in `CLAUDEBOOK.md` to current `HEAD`.
 
 ## Path → Doc rules
 
 ### Inventories (most common)
 
+The patterns below use `(src|libs|lib|app)` as a placeholder for "wherever this project keeps its code" — match against any of those alternates. For Convention-paths-aware matching, see the section above.
+
 | Path pattern | Update |
 |---|---|
-| `src/components/**/*.{tsx,jsx,vue,svelte}` (new/deleted/renamed) | `inventories/component-map.md` |
-| `src/components/**/*.{tsx,jsx}` (modified — props or exports changed) | `inventories/component-map.md` |
-| `src/utils/**/*.{ts,js}`, `src/lib/**/*.{ts,js}`, `lib/**/*.py` | `inventories/utility-map.md` |
-| `src/hooks/**/*.{ts,tsx}` (React) | `inventories/hook-map.md` |
-| `src/composables/**/*.{ts,js}` (Vue) | `inventories/hook-map.md` |
-| `src/services/**/*.{ts,js,py}`, `src/api/**` | `inventories/service-map.md` (and `patterns/api-integration.md` if the service makes raw HTTP calls — see note below) |
-| `src/pages/**`, `src/routes/**`, `src/app/**` (Next.js app router), `pages/**` | `inventories/route-map.md` |
-| `src/types/**/*.ts`, `*.d.ts` | `inventories/type-map.md` |
+| `(src\|libs\|lib\|app)/components/**/*.{tsx,jsx,vue,svelte}` (new/deleted/renamed) | `inventories/component-map.md` |
+| `(src\|libs\|lib\|app)/components/**/*.{tsx,jsx}` (modified — props or exports changed) | `inventories/component-map.md` |
+| `(src\|libs\|lib\|app)/utils/**/*.{ts,js}`, `(src\|libs\|lib\|app)/lib/**/*.{ts,js}`, `lib/**/*.py`, root `*.js` matching `*util*` / `*helper*` | `inventories/utility-map.md` |
+| `(src\|libs\|lib\|app)/hooks/**/*.{ts,tsx}` (React) | `inventories/hook-map.md` |
+| `(src\|libs\|lib\|app)/composables/**/*.{ts,js}` (Vue) | `inventories/hook-map.md` |
+| `(src\|libs\|lib\|app)/services/**/*.{ts,js,py}`, `(src\|libs\|lib\|app)/api/**`, `apis/**` | `inventories/service-map.md` (and `patterns/api-integration.md` if the service makes raw HTTP calls — see note below) |
+| `(src\|libs\|lib\|app)/pages/**`, `(src\|libs\|lib\|app)/routes/**`, `(src\|libs\|lib\|app)/app/**` (Next.js app router), `pages/**` | `inventories/route-map.md` |
+| `(src\|libs\|lib\|app)/types/**/*.ts`, `*.d.ts` | `inventories/type-map.md` |
+| Browser extension: `content_scripts` files per `manifest.json`, `background.{js,ts}`, `popup/**`, `options/**` | `inventories/component-map.md` (entry points) AND `patterns/browser-extension.md` if convention shifted |
 
-For non-Node stacks, substitute the conventional locations (e.g. Python: `myapp/views.py` → routes; `myapp/models.py` → types/models map).
+For non-Node stacks, substitute the conventional locations (e.g. Python: `myapp/views.py` → routes; `myapp/models.py` → types/models map). For browser extensions, treat each `manifest.json` entry point (background, content scripts, popup, options) as an inventory entry — the manifest itself is the source of truth, not folder layout.
 
 **HTTP-client convention check for services:** When a `src/services/**` file is added or modified, scan it for raw HTTP calls (`fetch(`, `axios(` direct construction, `XMLHttpRequest`, `ky(` etc.) that bypass the project's centralized client (e.g. `src/utils/api.ts`). If any are found, also flag `patterns/api-integration.md` for review — this is a **convention violation**, not just an inventory entry, and the pattern doc may need a "Recent shift" note or the offending file flagged in `conventions.md` known-offenders.
 
@@ -41,6 +56,7 @@ For non-Node stacks, substitute the conventional locations (e.g. Python: `myapp/
 | `tailwind.config.*` modified, or theme tokens / CSS variables changed | `patterns/styling.md` |
 | `src/contexts/**` or store files changed | `patterns/state-management.md` |
 | Route file added/removed | `patterns/routing.md` AND `inventories/route-map.md` |
+| `manifest.json` modified (browser extension) — permissions, content_scripts, web_accessible_resources, background changed | `patterns/browser-extension.md` AND `tech-stack.md` if scope materially shifted |
 
 Pattern doc updates should be **delta-only** — append new conventions or correct stale claims. Do not rewrite the whole doc unless the user requests it.
 

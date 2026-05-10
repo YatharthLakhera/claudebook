@@ -25,6 +25,9 @@ Check files in this order; the first match wins for primary classification, but 
 | `Package.swift` | Swift |
 | `deno.json` / `deno.jsonc` | Deno |
 | `bun.lockb` / `bun.lock` | Bun (Node-compatible) |
+| `manifest.json` containing `manifest_version` field | Browser extension (Chrome / Edge / Firefox WebExtensions) — inspect `content_scripts`, `background`, `host_permissions`, `web_accessible_resources` |
+
+Note: `manifest.json` *without* `manifest_version` is usually a Node web app or PWA — don't classify as an extension on filename alone. Confirm by checking the JSON contents.
 
 ### Framework signals (inside Node `package.json`)
 
@@ -46,6 +49,25 @@ Check files in this order; the first match wins for primary classification, but 
 | `express` / `fastify` / `koa` / `hapi` | Node backend frameworks |
 | `@nestjs/core` | NestJS |
 | `hono` | Hono |
+
+### Framework signals (browser extensions)
+
+Read `manifest.json` and classify by entry-point shape. Extensions commonly have **no JS framework, no package manager, and no build tool** — raw ES modules loaded directly by the browser is the default.
+
+| Manifest field | Implies |
+|---|---|
+| `manifest_version: 3` | MV3 — service worker model, stricter CSP, `chrome.scripting` API |
+| `manifest_version: 2` | MV2 — background pages, legacy permissions (deprecated by Chrome) |
+| `content_scripts[]` | Files injected into web pages — DOM-side code, sandboxed from page JS |
+| `background.service_worker` | MV3 service worker (no DOM, no persistent state) |
+| `background.scripts` / `background.page` | MV2 background page (long-lived) |
+| `action` / `browser_action` / `page_action` | Toolbar popup UI (HTML page) |
+| `options_ui` / `options_page` | Extension options page |
+| `web_accessible_resources` | Files reachable from page JS via `chrome.runtime.getURL(...)` |
+| `host_permissions` (MV3) / `permissions` (MV2) | Origins the extension can read/inject into |
+| `commands` | Keyboard shortcuts |
+
+If a `package.json` is also present alongside `manifest.json`, the project uses a build pipeline (e.g. webpack/vite plugin for extensions, CRX bundler) — note both. If only `manifest.json` exists, write "no package manager / no build tool — raw ES modules" in the stack table.
 
 ### TypeScript
 
@@ -106,23 +128,48 @@ Look for lockfile: `package-lock.json` (npm), `yarn.lock` (yarn), `pnpm-lock.yam
 
 `prisma`, `drizzle-orm`, `typeorm`, `sequelize`, `mongoose`, `sqlalchemy`, `django.db`, `gorm`, `diesel`, `activerecord`.
 
-## Classification output
+## Classification output — canonical shape
 
-After detection, summarize the stack in this exact shape (used by templates):
+There is **one canonical shape** for stack data: a markdown table with three columns (Layer, Choice, Version). Every doc that displays stack information uses this exact shape:
 
-```
-Language(s):       <e.g. TypeScript 5.x, Python 3.12>
-Framework:         <e.g. React 18.3, Next.js 14, Django 5>
-Build tool:        <e.g. Vite 5>
-Package manager:   <e.g. pnpm 9>
-Test runner:       <e.g. Vitest>
-Lint/format:       <e.g. ESLint, Prettier>
-Styling:           <e.g. TailwindCSS 3>
-State management:  <e.g. React Context only>
-Routing:           <e.g. react-router-dom 6>
-HTTP client:       <e.g. axios 1>
-Key libraries:     <comma-separated, only ones that materially affect patterns>
-```
+| Layer | Choice | Version |
+|---|---|---|
+| Language | TypeScript | 5.4 |
+| Framework | React (SPA via Vite) | 18.3 |
+| Build tool | Vite | 5.2 |
+| Package manager | pnpm | 9.1 |
+| Test runner | Vitest | 1.6 |
+| Lint | ESLint | 9.x |
+| Format | Prettier | 3.x |
+| Styling | TailwindCSS | 3.4 |
+| State | React Context | — |
+| Routing | react-router-dom | 6.23 |
+| HTTP | axios | 1.10 |
+| ORM/DB | — | — |
+| Analytics | mixpanel-browser | 2.73 |
+
+### Standardized "not applicable" wording
+
+When a row doesn't apply, render literally **`none configured`** in the Choice column and `—` (em-dash) in the Version column. Do not invent alternates like "N/A", "none", "not used", or blank cells. Examples:
+
+| Layer | Choice | Version |
+|---|---|---|
+| Test runner | none configured | — |
+| Build tool | none configured | — |
+| Package manager | none configured | — |
+
+### Skipping rows
+
+Drop rows that genuinely don't make sense for the stack — e.g. a Rust CLI has no "Styling" or "State management" row; a browser extension has no "Routing" row. Skipping is fine; do not pad with `none configured` for irrelevant categories. Use `none configured` only when the *category applies* but the project hasn't picked one (e.g. a JS project without a test runner).
+
+### Where this table is rendered
+
+The same table is rendered verbatim in:
+- `tech-stack.md` Snapshot section (primary)
+- `CLAUDEBOOK.md` Stack-detected block
+- `CLAUDE.md` Stack section (snapshot only — may be condensed to 4–6 most critical rows for context-budget reasons; full table stays in tech-stack.md)
+
+Never render this data as a colon-prefixed text block, a bulleted list, or an inline sentence — table only.
 
 ## When detection is ambiguous
 

@@ -27,8 +27,9 @@ Read these plugin files before doing anything project-side:
 1. Confirm cwd is the project root.
 2. Read `<project>/.claude/docs/CLAUDEBOOK.md`. If missing, abort and recommend `/claudebook:write`.
 3. Extract `Last commit covered: <sha>`. If missing or invalid, abort and ask the user — don't guess.
-4. Run `git rev-parse HEAD` to get current SHA. If equal to last-covered SHA, report "Already up to date" and stop.
-5. Run `git log --oneline <last-sha>..HEAD | wc -l` to size the change. If >200 commits, warn the user — they may want a fresh `/claudebook:write` instead.
+4. Extract the **Convention paths** table. These globs win over the generic `src/**` patterns in `lib/routing-rules.md` when classifying changed files. If the table is missing (older write), note it in the summary and fall back to the loosened generic patterns.
+5. Run `git rev-parse HEAD` to get current SHA. If equal to last-covered SHA, report "Already up to date" and stop.
+6. Run `git log --oneline <last-sha>..HEAD | wc -l` to size the change. If >200 commits, warn the user — they may want a fresh `/claudebook:write` instead.
 
 ### Step 2 — Collect the diff
 

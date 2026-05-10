@@ -63,9 +63,22 @@ Project-specific rules. The "why" matters when judging edge cases — the ration
 {{TOOLING}}
 
 <!--
-  - Lint: `npm run lint`. Fail on errors before commit.
-  - Type-check: `npm run type-check` before pushing.
-  - No pre-commit hooks today (note if added).
+  Two valid renderings:
+
+  1. Project has a package manager / task runner:
+       - Lint: `npm run lint`. Fail on errors before commit.
+       - Type-check: `npm run type-check` before pushing.
+       - No pre-commit hooks today (note if added).
+
+  2. Project has NO package manager (e.g. raw browser extension, static site).
+     Render literally:
+       - No lint runner configured. Manual review only.
+       - No type-check (project is plain JS / not TypeScript).
+       - No pre-commit hooks.
+       - To validate: load directly via the runtime (see overview/architecture).
+
+  Do not invent commands. If a tool isn't configured, say so explicitly — silence reads
+  as "exists but undocumented."
 -->
 
 ## Known offenders

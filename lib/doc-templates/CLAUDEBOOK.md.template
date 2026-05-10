@@ -15,9 +15,52 @@ Meta file. Tracks state for `/claudebook:revise`. Do not hand-edit unless you kn
 - **Best-practices depth:** {{DEPTH}}
 - **Stack detected:**
 
-```
+| Layer | Choice | Version |
+|---|---|---|
 {{STACK_TABLE}}
-```
+
+<!--
+  Use the canonical 3-column shape from `lib/stack-detection.md`. Do not embed as a
+  fenced code block. Do not use the older "Language: X" colon-prefix format. Use
+  `none configured` (Choice) + `—` (Version) for applicable-but-unset rows. Skip
+  rows that genuinely don't apply to the stack.
+-->
+
+
+### Convention paths
+
+The directories this project actually uses for each kind of code. `/claudebook:revise` reads this to map `git diff` paths to docs — do not assume `src/**`.
+
+| Kind | Glob(s) | Inventory doc |
+|---|---|---|
+{{CONVENTION_PATHS_TABLE}}
+
+<!--
+  Captured at write time by scanning the project. Examples:
+
+    React app under src/:
+      | components | src/components/**/*.{tsx,jsx}    | inventories/component-map.md |
+      | utilities  | src/utils/**/*.{ts,js}           | inventories/utility-map.md   |
+      | hooks      | src/hooks/**/*.{ts,tsx}          | inventories/hook-map.md      |
+      | services   | src/services/**/*.{ts,js}        | inventories/service-map.md   |
+      | routes     | src/pages/**, src/routes/**      | inventories/route-map.md     |
+      | types      | src/types/**/*.ts, *.d.ts        | inventories/type-map.md      |
+
+    Browser extension (no src/, code at root + libs/ + apis/):
+      | utilities  | libs/**/*.js, root *.js (utils only) | inventories/utility-map.md |
+      | services   | apis/**/*.js                          | inventories/service-map.md |
+      | content-scripts | content/**/*.js, root *content*.js | inventories/component-map.md |
+
+    Python FastAPI under app/:
+      | utilities | app/utils/**/*.py     | inventories/utility-map.md |
+      | services  | app/services/**/*.py  | inventories/service-map.md |
+      | routes    | app/routers/**/*.py   | inventories/route-map.md   |
+      | types     | app/models/**/*.py    | inventories/type-map.md    |
+
+  If a kind has no directory in this project, omit its row entirely.
+  Globs use shell-style; multiple globs comma-separated.
+-->
+
 
 ## Doc index
 
