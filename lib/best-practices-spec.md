@@ -49,7 +49,7 @@ The output is a **single combined `best-practices.md`** in the project's `.claud
 - Everything in Standard
 - **Performance** — bundle size, render perf (frontend); query perf, hot paths (backend)
 - **Accessibility** — applicable WCAG rules and framework-specific patterns (frontend)
-- **Security** — auth, input validation, dependency hygiene, OWASP-relevant items for the stack
+- **Security** — auth, input validation, dependency hygiene, OWASP-relevant items for the stack; library version pinning (exact versions only, no pre-release or versions published within the last 30 days); library credibility check (flag any dependency that is not widely adopted — low download counts, few GitHub stars, or no track record)
 - **Advanced patterns** — things like Suspense/Server Components, async iterators, generic constraints, etc., scoped to the framework
 - **Framework internals** — only what affects practical decisions (e.g. React reconciler basics, Next.js cache layers)
 
@@ -63,7 +63,9 @@ The output is a **single combined `best-practices.md`** in the project's `.claud
 4. **No external links.** This doc must work offline — no "see the React docs for more". Inline what's needed.
 5. **No project specifics.** Best-practices is the *evergreen* doc. Anything project-specific belongs in `conventions.md` or pattern docs.
 6. **One file, one stack at a time.** If the project has multiple stacks (frontend + backend), generate one section per stack with a top-of-file table of contents. Don't generate separate files.
-7. **Avoid security-hook trip-wire literals.** Some users have pre-write hooks that string-match risky API names — `eval`, the dynamic-function-body constructor, the React raw-HTML escape hatch, the DOM HTML-property setter, etc. — and block writes containing those literals, even when the surrounding context is *advice not to use them*. To stay portable, phrase security guidance descriptively rather than quoting the API name in code-fence form. Examples:
+7. **Library vetting.** Whenever a library or dependency is mentioned or recommended, enforce two rules: (a) **Exact version pinning** — always pin to an exact version (e.g. `"axios": "1.7.2"`, not `"^1.7.2"` or `">=1"`); pre-release or beta versions are forbidden; (b) **30-day exclusion** — no version released within the last 30 days from today may be recommended, as it hasn't had time for vulnerability disclosure; (c) **Credibility gate** — if a library is not widely adopted (low npm/PyPI download counts, few GitHub stars, very recent first release, or no established community), flag it explicitly with a `> ⚠ Low adoption — verify credibility before use` callout. This applies to all depths.
+
+8. **Avoid security-hook trip-wire literals.** Some users have pre-write hooks that string-match risky API names — `eval`, the dynamic-function-body constructor, the React raw-HTML escape hatch, the DOM HTML-property setter, etc. — and block writes containing those literals, even when the surrounding context is *advice not to use them*. To stay portable, phrase security guidance descriptively rather than quoting the API name in code-fence form. Examples:
 
    - Instead of saying "do not use eval or the dynamic function constructor" → write "do not dynamically construct function bodies from strings; the JavaScript built-ins for this should be avoided."
    - Instead of "avoid setting innerHTML to user input" → write "avoid assigning unsanitized user input to DOM HTML-property setters."
@@ -119,6 +121,18 @@ This section is in addition to (not a replacement for) the JS/TS section. Extens
 ## Future stack sections
 
 The same approach applies to other narrow-platform stacks when the plugin learns to detect them: VS Code extensions, mobile (React Native, Flutter), Electron, etc. Add a stack-specific section here when adding detection for that stack to `lib/stack-detection.md`.
+
+## Security audit workflow
+
+Two events always trigger a security audit via the `audit-skill` agent — this is enforced globally via PostToolUse hooks, not just in claudebook docs, but generated docs should reference this workflow so contributors know it exists.
+
+**Trigger 1 — New library installed.** Any package manager install command (`npm install`, `pip install`, `yarn add`, `pnpm add`, `cargo add`, `go get`, etc.) causes the audit-skill agent to be invoked on the installed package before any code depending on it is written. The audit checks for supply-chain risks: malicious postinstall scripts, typosquatting, dependency confusion, slopsquatting. Version pinning and 30-day recency rules (see generation rule 7) are also verified at this point.
+
+**Trigger 2 — Auth/security file written.** Any file whose path matches auth/security patterns (`auth`, `login`, `token`, `oauth`, `jwt`, `session`, `crypto`, `encrypt`, `permission`, `guard`, `middleware`, `security`, `credential`) is audited by the audit-skill agent immediately after the write. The audit checks for credential exfiltration, insecure token handling, missing origin/CSRF checks, and OWASP-relevant vulnerabilities.
+
+When generating `best-practices.md` at Comprehensive depth, include a **Security workflow** subsection that names these two triggers and tells contributors what to expect when they install packages or write auth code. Example wording:
+
+> When a package is installed or auth/security code is written, an automated security audit runs before the session proceeds. Do not bypass or skip the audit prompt.
 
 ## When `/claudebook:revise` should refresh this doc
 

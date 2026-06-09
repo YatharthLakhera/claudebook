@@ -33,11 +33,13 @@
 
 <!--
   One line per dep that materially affects code patterns. Skip trivial deps.
+  Always record the exact pinned version. Flag any dep with low adoption.
   Example:
-  - axios 1.10 — centralized instance in src/utils/api.ts
-  - lucide-react 0.522 — icon library; do not introduce others
-  - react-toastify 10 — toast UX (top-right, 3s default)
-  - mixpanel-browser 2.73 — analytics; events tracked via src/utils/analytics.ts
+  - axios 1.7.2 — centralized instance in src/utils/api.ts
+  - lucide-react 0.522.0 — icon library; do not introduce others
+  - react-toastify 10.0.6 — toast UX (top-right, 3s default)
+  - mixpanel-browser 2.73.0 — analytics; events tracked via src/utils/analytics.ts
+  - some-obscure-lib 0.2.1 — ⚠ Low adoption — verify credibility before use
 -->
 
 ## Versions to watch
@@ -46,5 +48,7 @@
 
 <!--
   Any pin justifications, known incompat, or upcoming upgrades.
+  Also note: all deps must be pinned to exact versions (no ranges/carets/tildes).
+  Never recommend a version released within the last 30 days.
   Skip if nothing material.
 -->
