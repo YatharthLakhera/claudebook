@@ -83,6 +83,23 @@ Pattern doc updates should be **delta-only** — append new conventions or corre
 | README significantly rewritten | `overview.md` (cross-check) |
 | `CLAUDE.md` manually edited by user | flag — do not overwrite, integrate carefully |
 
+### Security model doc (conditional)
+
+Applies only when `docs/security-decisions.md` exists and carries the claudebook marker (if it lacks one it is user-authored: flag only, ask before changing). This check runs on the full diff and overrides the ignore list below for the paths it names (Dockerfile, deploy config, dependency manifests are ignored for other docs but still count here).
+
+| Path pattern (case-insensitive, any depth) | Effect |
+|---|---|
+| `auth`, `session`, `login`, `token`, `oauth` | sensitive |
+| `billing`, `payment`, `checkout`, `webhook`, `pricing`, `quota` | sensitive |
+| `middleware`, `security`, `csp`, `headers` | sensitive |
+| `routers/`, `routes/`, `handlers/`, `controllers/` | sensitive |
+| `migrations/`, `alembic/versions/` | sensitive |
+| `fetch`, `proxy`, `redirect`, `upload` | sensitive |
+| `Dockerfile`, `docker-compose.yml`, deploy config (`railway.*`, `fly.toml`, `vercel.json`, `netlify.toml`, `*.github/workflows/*`) | sensitive |
+| dependency manifests (`package.json`, `pyproject.toml`, `requirements*.txt`, `Cargo.toml`, `go.mod`, `Gemfile`, `composer.json`, `pom.xml`, `build.gradle*`) | sensitive |
+
+If any changed file matches, add `docs/security-decisions.md (re-verify B: <matched files>)` to "Will update". Procedure is in `commands/revise.md` (security doc patch). Section D is never edited; C and E wording only with the user's OK.
+
 ### Files to ignore
 
 | Path | Why |
@@ -127,6 +144,7 @@ Files changed since <sha>: <N>
   Pattern shifts:         → <list of pattern docs>
   Project-level:          → <list>
   Unclassified:           → <list of paths — ask user>
+  Security model:         → docs/security-decisions.md (re-verify B: <files>) (only if the doc exists and a sensitive path changed)
 
 Will update: <doc list>
 Proceed?

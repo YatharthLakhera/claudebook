@@ -69,6 +69,10 @@ Inspect these files specifically — they have outsized impact:
 - `tailwind.config.*` theme changes → flag `patterns/styling.md`.
 - `eslint.config.*` rule changes → flag `conventions.md`.
 
+### Step 4b — Security model check
+
+If `docs/security-decisions.md` exists, scan the changed paths against the "Security model doc" table in `lib/routing-rules.md` (auth/session/login/token/oauth, billing/payment/checkout/webhook/pricing/quota, middleware/security/csp/headers, routers/handlers/controllers, migrations, fetch/proxy/redirect/upload, Dockerfile/deploy config, dependency manifests). Do this even if those paths would otherwise be ignored. On a match, add `docs/security-decisions.md (re-verify B: <files>)` to the update map. If the doc lacks the claudebook marker, treat it as user-authored and ask first.
+
 ### Step 5 — Show summary, wait for confirmation
 
 Use the format from `lib/routing-rules.md`. Print:
@@ -84,6 +88,7 @@ Will update:
   inventories/utility-map.md    (+2 utils)
   patterns/api-integration.md   (api.ts modified — patterns may have shifted)
   tech-stack.md                 (axios bumped 1.x → 2.x)
+  docs/security-decisions.md    (re-verify B: routers/billing.py, services/auth.py)
 
 Unclassified (will skip — review manually if material):
   scripts/migrate-2026.ts
@@ -121,6 +126,17 @@ If you can't determine purpose for a new symbol from the file alone, mark `Purpo
 - `conventions.md` — only update if lint config / tsconfig strictness changed, or if known-offenders need refresh (re-scan the largest 5 files).
 - `best-practices.md` — refresh only on major framework version bump or new framework added. Otherwise leave alone.
 
+#### Security doc (`docs/security-decisions.md`)
+
+Only when flagged in Step 4b. Read the whole doc, then the changed files that matched.
+- **Section B**: for each entry citing a changed file, re-read the code. Fix drifted `file:line` refs. If the hardening was removed or weakened, drop it from B and add it to "Open observations" with what changed (never delete silently). If new hardening appears in the changed code (guard, lock, signature check, validator), verify it and add it to B with `file:line`. Not fully traced goes to "Not confirmed".
+- **Open observations**: append new ones for new sensitive code (new endpoint without auth, new outbound fetch, new money/quota write without lock, new HTML sink). Suspected, not accepted.
+- **Section A**: update only facts that changed (new public route, new role, new auth path).
+- **Never edit section D** (accepted findings), except removing nothing. If code changed so an accepted reason may no longer hold, add an open observation pointing at the D row and ask the user.
+- **Sections C and E**: do not change wording without asking.
+- Rules from `/claudebook:write` apply: verify before claiming, never read `.env*` or print secrets, never invent acceptances. For many changed sensitive files, use parallel Sonnet subagents per area if the Agent tool is available.
+- Update the doc's marker date and `sha`.
+
 #### CLAUDE.md
 
 - Refresh "Stack" snapshot if `tech-stack.md` was updated.
@@ -143,6 +159,7 @@ Print:
 - Symbols added / removed / modified across inventories
 - New SHA recorded
 - Anything skipped that the user should look at manually (the unclassified list)
+- If the security doc was touched: B entries confirmed / fixed / moved to Open observations / added, and new open observations for the user to decide
 
 ## Failure handling
 
@@ -157,4 +174,5 @@ Print:
 - Don't update docs for files that match the ignore list (lockfiles, build artifacts, tests).
 - Don't bump `Last commit covered` if any doc write failed.
 - Don't add changelogs or "what changed" sections to docs — the docs describe current state, not history.
+- Don't edit section D of `docs/security-decisions.md`, and don't reword its C/E without asking.
 - Don't touch `overview.md` or pre-existing user-authored content unless asked.

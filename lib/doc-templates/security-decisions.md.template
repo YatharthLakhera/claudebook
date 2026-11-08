@@ -1,0 +1,64 @@
+<!-- claudebook: generated {{DATE}}, depth={{DEPTH}} -->
+# {{PROJECT}} security decisions
+
+Read this before any security review or before committing auth, billing, quota, fetch, LLM or backend code.
+Every claim in section B was checked against the code on {{DATE}}; line numbers drift, so grep the symbol if a line is off.
+Paths are relative to the repo root unless stated.
+
+## A. Trust boundaries and public-by-design endpoints
+
+**Identity**: {{AUTH_MECHANISM: how users authenticate, session/token storage, revocation, where it is verified (file:line)}}
+
+**Roles** (source of truth and how each is enforced):
+
+| Role | Can do | Where enforced |
+|---|---|---|
+| {{ROLE}} | {{CAPABILITY}} | {{file:line}} |
+
+**Untrusted inputs** (treat as hostile): {{request bodies, query strings, headers, uploaded files, fetched pages, LLM output, third-party payloads, ...}}
+
+**Public by design** (do not flag as missing auth):
+- {{route or endpoint}}: {{why it is public, what it exposes, file:line}}
+
+**What the client bundle exposes**: {{public env vars, public keys; what must never ship to the client}}
+
+**Other boundaries**: {{package/service direction rules, body size caps, docs endpoints disabled in prod, ...}}
+
+## B. Hardening already in place (verify, do not re-flag)
+
+Confirmed in code on {{DATE}}. If a diff touches one of these, check that the property still holds; do not report the mechanism as missing.
+Include only mechanisms that exist and were read in code. Typical groups: SSRF / outbound fetch guards, URL and redirect validation, payment signature and idempotency, locks around check-then-write, rate limits and quotas, CSP and security headers, secret handling and startup checks, LLM prompt-injection handling, output encoding.
+
+**B1. {{Mechanism}}** (`{{path}}`)
+- {{What it does, precisely}} (`{{file:line}}`)
+
+**Not confirmed / partially confirmed (do not treat as hardening)**
+- {{Item, what was checked, what could not be verified}}
+
+## C. New-code checklist
+
+Apply to the diff. Each item is a bug class relevant to this stack; keep only items that apply.
+
+1. {{Rule specialized to this stack, naming the project's helper or pattern to use}}
+
+## D. Accepted findings
+
+Only findings the user (or an explicit code comment) accepted belong here. Format: date, finding, reason, who accepted.
+
+| Date | Finding | Reason | Accepted by |
+|---|---|---|---|
+
+Open observations, neither fixed nor accepted (ask the user, then move to the table or fix):
+- {{Observation with file:line, or "none"}}
+
+To add an entry: the user says "accept that" or "won't fix"; add a row with the date, one-line reason and who accepted. Remove it if the code changes so the reason no longer holds.
+
+## E. Reviewer output rule
+
+1. Read this file first. Do not re-flag anything in B; if you think a B item is broken, say so with the exact failing input.
+2. Report only issues you can exploit or trigger: name the attacker, the request or input, and the resulting harm. No defense-in-depth lists, no style, no theoretical hardening.
+3. Each finding: `[SEVERITY] [confidence] file:line, one-line title`, then attacker, steps, impact, fix. Severity is HIGH (money, other users' data, account takeover, RCE/SSRF), MEDIUM (cross-user availability, quota or limit bypass, PII leak), LOW (self-only). Confidence is high, medium or low; say what you could not verify.
+4. Check section D and the open observations before reporting; a match is "already known", not a finding.
+5. Skip fast: if every changed file is CSS, markdown, copy-only markup, tests or images with no fetch, redirect, HTML sink, storage or analytics change, answer "no security-relevant change" in one line. Do not open files for that.
+6. Read the changed files in full and grep callers before claiming a vulnerability; do not review from diff hunks alone.
+7. If nothing exploitable is found, say "No exploitable issues found" and list what you checked.

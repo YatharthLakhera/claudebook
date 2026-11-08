@@ -1,0 +1,30 @@
+{
+  "description": "claudebook security review: background review of pushed changes, path-filtered and deduped, guided by docs/security-decisions.md",
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/security-review.sh\"",
+            "if": "Bash(git*push*)",
+            "timeout": 900,
+            "asyncRewake": true,
+            "rewakeMessage": "claudebook security review of pushed changes — address or acknowledge the findings below, then continue with the user's original request or continue waiting for their reply:",
+            "rewakeSummary": "claudebook security review found issues"
+          },
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/security-review.sh\"",
+            "if": "Bash(gh pr create*)",
+            "timeout": 900,
+            "asyncRewake": true,
+            "rewakeMessage": "claudebook security review of the PR's changes — address or acknowledge the findings below, then continue with the user's original request or continue waiting for their reply:",
+            "rewakeSummary": "claudebook security review found issues"
+          }
+        ]
+      }
+    ]
+  }
+}

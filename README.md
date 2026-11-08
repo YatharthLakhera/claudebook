@@ -9,6 +9,8 @@ Layered, AI-friendly project documentation for [Claude Code](https://docs.claude
 
 Two slash commands — `/claudebook:write` and `/claudebook:revise` — that generate and incrementally maintain a `CLAUDE.md` router plus topic docs, inventories, and pattern guides under `.claude/docs/`. Claude loads only what's relevant to the current task and reuses existing components instead of recreating them.
 
+For repos with auth, payments, server-side fetches or LLM calls, it also writes and maintains `docs/security-decisions.md`, and the plugin's push-time hook uses it to run a focused background security review (see [Security review on push](#security-review-on-push)).
+
 ## The problem
 
 `CLAUDE.md` is the file every Claude Code session loads on startup. It pays for itself when it's a thin router and turns into dead weight when it grows. The usual failure modes:
@@ -27,7 +29,20 @@ Two slash commands — `/claudebook:write` and `/claudebook:revise` — that gen
 | `/claudebook:write` | Bootstrap the full doc system. Detects stack, scans source, generates docs in dependency order, finalizes `CLAUDE.md` as the router. Run once per project. |
 | `/claudebook:revise` | Incremental update. Reads the last-covered SHA from `CLAUDEBOOK.md`, runs `git diff`, classifies each change, and updates only the affected docs. Run after merging significant changes. |
 
+| Push-time security review (hook) | Runs in the background after `git push` / `gh pr create`; reviews only risky files pushed since the last review, guided by `docs/security-decisions.md`. Plugin install only. |
+
 Full behavior, edge cases, and usage examples are in [Commands in detail](#commands-in-detail) and [Usage](#usage) below.
+
+## Security review on push
+
+Installed automatically with the plugin (Option 1); manual copies (Options 2 and 3) don't get hooks.
+
+- **When:** after a successful `git push` or `gh pr create`, in the background. Never on commit or at the end of a turn, so it doesn't interrupt work.
+- **What:** only commits pushed since the last reviewed one (state in `.git/claudebook-security-state.json`). Low-risk changes are skipped: docs, styles, tests, assets, lockfiles, and front-end files that touch no network, HTML, storage or auth sinks. Backend code, infra/deploy config and dependency manifests are always reviewed. An identical diff is never reviewed twice.
+- **How:** four parallel reviewers (`claude -p --model sonnet`), one per lens — authz, money and races, injection (SQL/SSRF/XSS/prompt), secrets and exposure — each reading `docs/security-decisions.md` first: hardening listed in section B is verified rather than re-flagged, accepted findings in section D are skipped. One adversarial verifier then tries to refute each candidate. Only exploitable issues with a severity, confidence, exploit path and fix come back.
+- **Output:** findings wake the session as one message; nothing is posted anywhere. Silent when there's nothing to report. Log: `.git/claudebook-security.log`.
+- **Knobs:** `CLAUDEBOOK_REVIEW_MODEL` (default `sonnet`), `CLAUDEBOOK_SECURITY_REVIEW_OFF=1` to disable. Manual run: `python3 hooks/security_review.py --range <base>..<head> --cwd <repo> [--dry-run]` from the plugin directory.
+- **Requires:** `git`, `python3`, and the `claude` CLI on `PATH`.
 
 ## Requirements
 
@@ -158,6 +173,9 @@ That's the payoff. The docs do the work, sessions stay focused, and `CLAUDE.md` 
 <project-root>/
 ├── CLAUDE.md                       # Thin router, always loaded. Stack, critical rules, task→doc table.
 ├── AGENTS.md                       # One-line stub: "See CLAUDE.md".
+├── docs/
+│   └── security-decisions.md       # Security model: trust boundaries, verified hardening, checklist, accepted findings.
+│                                   # Only for repos with auth, payments, server-side fetch/LLM, uploads or a public API.
 └── .claude/
     └── docs/
         ├── CLAUDEBOOK.md           # Meta: stack, last commit covered, doc index.
@@ -221,6 +239,10 @@ claudebook/
 ├── commands/
 │   ├── write.md                    # /claudebook:write
 │   └── revise.md                   # /claudebook:revise
+├── hooks/
+│   ├── hooks.json                  # PostToolUse: git push / gh pr create → background review
+│   ├── security-review.sh          # launcher
+│   └── security_review.py          # range, risk filter, dedupe, parallel reviewers, verifier
 └── lib/
     ├── stack-detection.md          # how to detect the stack
     ├── routing-rules.md            # file-change → doc-to-update map
@@ -232,6 +254,7 @@ claudebook/
         ├── architecture.md.template
         ├── tech-stack.md.template
         ├── conventions.md.template
+        ├── security-decisions.md.template
         ├── inventories/*.template
         └── patterns/*.template
 ```
@@ -253,7 +276,7 @@ The docs `claudebook` generated inside your project (`CLAUDE.md`, `.claude/docs/
 
 ## Contributing
 
-PRs welcome. The two command files in `commands/` and the templates / rules under `lib/` are the entire surface area — keep them simple, terse, and scannable.
+PRs welcome. The two command files in `commands/`, the templates / rules under `lib/` and the review hook under `hooks/` are the entire surface area — keep them simple, terse, and scannable.
 
 ### Heads-up: pre-write security hooks
 

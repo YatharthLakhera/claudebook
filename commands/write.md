@@ -87,6 +87,8 @@ Pattern docs — generate only if the codebase actually uses the pattern:
 
 Project docs — always: `overview.md`, `architecture.md`, `tech-stack.md`, `conventions.md`, `best-practices.md`.
 
+Security doc — `docs/security-decisions.md` (at `<project>/docs/`, not under `.claude/docs/`). Generate if the repo has ANY of: auth/sessions, payments/billing/quotas, server-side fetch/proxy/LLM calls, file uploads, a public API. Otherwise skip silently.
+
 ### Step 5 — Confirm with user (AskUserQuestion)
 
 Ask in **one batched** AskUserQuestion call (multiple questions in a single tool call):
@@ -95,6 +97,7 @@ Ask in **one batched** AskUserQuestion call (multiple questions in a single tool
 2. **Best-practices depth** — Essentials (recommended) / Standard / Comprehensive. Use the descriptions from `lib/best-practices-spec.md`.
 3. **Pattern docs to skip** — show the auto-included list with checkboxes; user can deselect any (multiSelect). **An empty selection means "skip none"** (i.e. include every auto-detected pattern doc), NOT "skip all". This applies whether the user (a) selected zero options, (b) didn't see/answer the question (e.g. answered only some questions in the batched call), or (c) answered with a no-op response. The default is always "include every detected pattern." If the user genuinely wants to skip everything, they must say so in free-text follow-up.
 4. **Existing CLAUDE.md / AGENTS.md** — only ask if step 1 found user-authored versions. Options: "Migrate content into new docs" (recommended) / "Discard" / "Abort and review manually".
+5. **Security model** — only ask if the Step 4 trigger matched. Options: "Include `docs/security-decisions.md`" (recommended) / "Skip". If `docs/security-decisions.md` already exists without the claudebook marker, it is user-authored: options are "Adopt (add marker, keep content, run the verification pass and only propose edits)" / "Leave untouched".
 
 Wait for answers before proceeding.
 
@@ -132,6 +135,39 @@ Extract from: existing `AGENTS.md` / `CLAUDE.md` content (if any), `eslint.confi
 - **Naming** (case rules per file/symbol type)
 - **Critical rules** (must-follow, with consequences if broken)
 - **Known offenders** (files exceeding self-imposed rules — flag for refactor without breaking session work)
+
+#### 6b-sec. Security model (`docs/security-decisions.md`)
+
+Skip unless Step 4 triggered and the user chose include/adopt. Runs after conventions, before CLAUDE.md. This is the doc a security reviewer (human, agent or push-time hook) reads first so it verifies existing hardening instead of re-flagging it and skips accepted findings. Accuracy beats coverage: a wrong "hardening" claim makes reviewers skip real bugs.
+
+Scaffold: `lib/doc-templates/security-decisions.md.template`. Marker: `<!-- claudebook: generated YYYY-MM-DD, depth=<chosen> -->` (first line; add `, sha=<short-sha>` like other docs when in git).
+
+Rules:
+1. **Verify before claiming.** Every item in section B is read in code and cited `file:line` plus symbol (lines drift). Not read, partly traced or unconfirmed goes under "Not confirmed" or "Open observations", never B.
+2. **Only what exists.** No hardening group or checklist item for features the project lacks.
+3. **Never invent acceptances.** Section D holds only findings the user said to accept or an explicit code comment accepts (cite it). Otherwise the table is empty.
+4. **Never read `.env*` files or print secret values.** No `printenv`, no platform CLI that prints variables. Prod config that matters is recorded as "not checked (no env access)".
+5. No commits. No code changes.
+
+Procedure:
+1. **Map trust boundaries** (file:line): auth mechanism (login flow, session/token format and storage, cookie flags, revocation, where identity is derived per request); roles and how enforced (confirm read server-side, not from client input); untrusted inputs (bodies, headers incl. `Host`/forwarded, uploads, fetched pages, webhooks, LLM output); public-by-design routes and why (health, SEO, public pricing, signature-authenticated webhooks, OAuth callbacks, static assets); client exposure (public env prefixes like `VITE_`/`NEXT_PUBLIC_`, confirm no secrets); other boundaries (package direction rules, body size caps, docs endpoints in prod).
+2. **Find and verify hardening.** Search each class; for each hit read the whole function and the failure path; skip classes with no hits:
+   - Outbound fetch / SSRF: scheme/port allowlist, private-IP block on resolved addresses, DNS pinning, redirect handling, size/time caps.
+   - URL and redirect validation: post-login `next`, stored/rendered link schemes, open redirects, path traversal on static serving.
+   - Payments: signature check (before parsing, constant-time, fail closed on missing secret), idempotent completion, server-chosen price/tier/currency, amount match against stored order.
+   - Concurrency: locks, transactions, conditional `UPDATE ... WHERE`, unique constraints around check-then-write on money, quota, seats, codes.
+   - Rate limits and quotas: keyed by user or IP, in-memory vs shared, proxy-header trust.
+   - CSP and headers: CSP directives, HSTS, frame-ancestors, cookie flags, CORS, `no-store` on API.
+   - Secret handling: fail-fast on missing prod secrets, dev/test login bypass guards, secrets or `str(exc)` in logs/responses/analytics.
+   - LLM prompt-injection: untrusted text sanitized and delimited, instructions declare it data, structured output, privilege-granting verdicts verified against source text.
+   - Frontend sinks: `dangerouslySetInnerHTML`, `innerHTML`, `eval`, unescaped server HTML, `href` from data, `target=_blank` without `rel`.
+3. **Large repos** (more than ~200 source files) with the Agent tool available: spawn parallel Sonnet subagents in one message, one per area: (a) auth/session/roles, (b) payments/quotas/concurrency, (c) network/fetch/redirects/LLM, (d) frontend sinks/headers/CSP/secrets. Brief each with root, stack, rules 1-4 above, and a return format per finding: mechanism, behavior, `file:line` + symbol, verified or not, what was not checked. Merge yourself and spot-check a sample of cited lines. Small repos: inline.
+4. **Write** to `docs/security-decisions.md` (create `docs/`):
+   - **A** trust boundaries and public-by-design.
+   - **B** hardening in place (verified only, file refs) plus a "Not confirmed" list.
+   - **C** new-code checklist specialized to the stack, naming the project's own helpers (the guard to call, the lock to take); only relevant bug classes.
+   - **D** accepted findings: date, finding, reason, accepted by. Empty table if none. Then "Open observations" (suspected gaps with `file:line`, one line on why and what is unverified; not labelled accepted).
+   - **E** reviewer output rule as in the template: exploitable issues only, severity + confidence, check B and D first.
 
 #### 6c. Pattern docs (specialized)
 
@@ -189,7 +225,7 @@ Use `lib/doc-templates/CLAUDE.md.template`. Fill in:
 - Stack snapshot (from Step 2)
 - Commands (extract from `package.json` scripts / equivalent)
 - Critical rules (5–10 from `conventions.md`)
-- Task → doc routing table (only entries for docs that were generated)
+- Task → doc routing table (only entries for docs that were generated). If the security doc was generated or adopted, add the row: `Security review / sensitive change (auth, billing, fetch, LLM, uploads) → docs/security-decisions.md`
 - "Always before writing code" reminder pointing to inventories
 
 Keep CLAUDE.md ≤200 lines. If it's longer, the routing table is too verbose — collapse rare entries.
@@ -204,7 +240,7 @@ Use `lib/doc-templates/CLAUDEBOOK.md.template`. Record:
 - Stack detected
 - Depth chosen
 - Last commit covered: current `HEAD` SHA
-- **Doc index with accurate line counts.** Run `wc -l` on each generated file rather than estimating:
+- **Doc index with accurate line counts** (include `docs/security-decisions.md` when generated or adopted). Run `wc -l` on each generated file rather than estimating:
 
   ```sh
   wc -l <project>/CLAUDE.md <project>/.claude/docs/**/*.md
@@ -235,6 +271,7 @@ Print to the user:
 - Pattern docs included / skipped (with reasons)
 - Total inventory entries (per kind)
 - Last commit SHA recorded
+- Security model: written / adopted / skipped / not applicable, with counts of verified B items, not-confirmed items and open observations
 - One sentence on next steps: "Run `/claudebook:revise` after merging significant changes."
 
 Mark all tasks completed.
