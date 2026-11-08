@@ -1,7 +1,7 @@
 {
   "name": "claudebook",
-  "description": "Layered, AI-friendly project documentation for Claude Code. Two slash commands \u2014 /claudebook:write and /claudebook:revise \u2014 that generate and incrementally maintain a CLAUDE.md router plus topic docs, inventories, and pattern guides under .claude/docs/, so Claude loads only what's relevant to the current task and reuses existing components instead of recreating them. Also maintains docs/security-decisions.md and runs a push-time background security review guided by it.",
-  "version": "0.2.0",
+  "description": "Layered, AI-friendly project documentation for Claude Code. Two slash commands — /claudebook:write and /claudebook:revise — that generate and incrementally maintain a CLAUDE.md router plus topic docs, inventories, and pattern guides under .claude/docs/, so Claude loads only what's relevant to the current task and reuses existing components instead of recreating them. Also maintains docs/security-decisions.md and runs a push-time background security review guided by it.",
+  "version": "0.2.1",
   "author": {
     "name": "Yatharth Lakhera"
   },
